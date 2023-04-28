@@ -48,7 +48,7 @@ deepl.api_key = str(os.environ.get("DeepL_API"))
 klient = kadal.Client()
 Morning_Messages = []
 TL_Language = {}
-gura_images=[]
+gura_images = []
 waifupic_categories = [
     "waifu",
     "neko",
@@ -119,7 +119,7 @@ async def on_ready():
         # print(f"Synced: {len(synced)} command(s)")
         print(f"Logged in as {bot.user} (ID: {bot.user.id})")
         print(f"Number of slash commands: {len(bot.application_commands)}")
-        #send_daily_message.start()
+        # send_daily_message.start()
         activity = discord.Activity(
             name="Gawr Gura🦈",
             # type=discord.ActivityType.playing,
@@ -137,6 +137,7 @@ async def on_ready():
     except Exception as e:
         print(e)
 
+
 @bot.event
 async def on_guild_join(guild):
     embed = discord.Embed(
@@ -146,7 +147,8 @@ async def on_guild_join(guild):
     )
     await guild.text_channels[0].send(embed=embed)
 
-## Morning Messages
+
+# Morning Messages
 # @tasks.loop(seconds=1)
 # async def send_daily_message():
 #     now = datetime.datetime.now(singapore_tz)
@@ -476,7 +478,6 @@ async def waifu(interaction: discord.Interaction, command: str):
         await interaction.response.send_message("Invalid command selected.")
 
 
-
 @bot.slash_command(
     name="help_search", description="Gura's image generation category help."
 )
@@ -734,7 +735,7 @@ async def about(ctx):
     # )
     embed.add_field(
         name="Tools",
-        value = f"`Python {platform.python_version()}`\n`OS {(platform.system() + ' ' + platform.release())}`"
+        value=f"`Python {platform.python_version()}`\n`OS {(platform.system() + ' ' + platform.release())}`",
     )
     embed.add_field(
         name="Main Modules",
@@ -788,11 +789,16 @@ async def delete_messages(ctx, count: int = 1):
 @bot.slash_command(name="user", description="Get member's Information")
 async def user(interaction: discord.Interaction, member: discord.Member = None):
     if interaction.guild is None:
-        embed = discord.Embed(description=interaction.user.mention, color=discord.Color.blue())
-        embed.set_author(name=str(interaction.user), icon_url=interaction.user.avatar.url)
+        embed = discord.Embed(
+            description=interaction.user.mention, color=discord.Color.blue()
+        )
+        embed.set_author(
+            name=str(interaction.user), icon_url=interaction.user.avatar.url
+        )
         embed.set_thumbnail(url=interaction.user.avatar.url)
         embed.add_field(
-            name="**Registered**", value=f"{interaction.user.created_at.strftime('%a, %d %b %Y %I:%M %p')}"
+            name="**Registered**",
+            value=f"{interaction.user.created_at.strftime('%a, %d %b %Y %I:%M %p')}",
         )
         embed.set_footer(text="ID: " + str(interaction.user.id))
         await interaction.response.send_message(embed=embed)
@@ -807,7 +813,9 @@ async def user(interaction: discord.Interaction, member: discord.Member = None):
             name="**Joined**", value=f"{member.joined_at.strftime(date_format)}"
         )
         members = sorted(interaction.guild.members, key=lambda m: m.joined_at)
-        embed.add_field(name="**Join position**", value=f"{str(members.index(member)+1)}")
+        embed.add_field(
+            name="**Join position**", value=f"{str(members.index(member)+1)}"
+        )
         embed.add_field(
             name="**Registered**", value=f"{member.created_at.strftime(date_format)}"
         )
@@ -819,12 +827,19 @@ async def user(interaction: discord.Interaction, member: discord.Member = None):
                 inline=False,
             )
         perm_string = ", ".join(
-            [str(p[0]).replace("_", " ").title() for p in member.guild_permissions if p[1]]
+            [
+                str(p[0]).replace("_", " ").title()
+                for p in member.guild_permissions
+                if p[1]
+            ]
         )
         if perm_string:
-            embed.add_field(name="**Guild permissions**", value=f"{perm_string}", inline=False)
+            embed.add_field(
+                name="**Guild permissions**", value=f"{perm_string}", inline=False
+            )
         embed.set_footer(text="ID: " + str(member.id))
         await interaction.response.send_message(embed=embed)
+
 
 @bot.slash_command(name="banner", description="Get member's Banner")
 async def banner(interaction: discord.Interaction, member: discord.Member = None):
@@ -1067,7 +1082,6 @@ async def nya(ctx, picture_to_generate: int = 1):
 # Testing
 
 
-
 # DeepL Translation
 
 try:
@@ -1260,9 +1274,7 @@ async def translate_text(text: str, target_lang: str, translator: str) -> str:
     return f"Invalid translator selected: {translator}"
 
 
-@bot.slash_command(
-    name="translate", description="Gura helps you to translate messages"
-)
+@bot.slash_command(name="translate", description="Gura helps you to translate messages")
 async def translate(ctx: discord.ApplicationContext, message: str):
     """Translates a message to the selected language using the selected translator."""
     # Retrieve the user's selected language and translator from the JSON file using their user id as the key
@@ -2355,5 +2367,6 @@ async def al_anime(interaction, *, name):
         return  # Interaction is no longer available, so stop processing
     await interaction.response.defer()
     await interaction.followup.send(embed=embed)
+
 
 bot.run(os.environ.get("Discord_Token"))
