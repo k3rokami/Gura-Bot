@@ -1,9 +1,7 @@
 version = 1
 
 exclude_patterns = [
-  "karin_bot_V1.py",
   "/utils/embeds.py",
-  "/utils/custom_log.py"
 ]
 
 [[analyzers]]

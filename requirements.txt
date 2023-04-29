@@ -1,0 +1,11 @@
+py-cord
+discord-py-slash-command
+deepl
+pytz
+orjson
+pysaucenao
+python-dotenv
+deep_translator
+kadal
+genshin
+cryptography

@@ -2,6 +2,7 @@
 # Copyright (c) 2023 Kurokami       #
 # Distributed under the MIT License #
 #####################################
+
 import asyncio
 import datetime
 import json
@@ -10,6 +11,10 @@ import os
 import platform
 import random
 import typing
+import genshin
+import hashlib
+import base64
+from cryptography.fernet import Fernet
 from urllib.request import getproxies
 
 import aiohttp
@@ -34,7 +39,7 @@ from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
 AL_ICON = "https://avatars2.githubusercontent.com/u/18018524?s=280&v=4"
-VERSION = "v1.1.0"
+VERSION = "v1.1.1"
 JSON_PATH = "Translate_Language.json"
 WAIFU_PATH = "Waifu.json"
 
@@ -48,6 +53,7 @@ deepl.api_key = str(os.environ.get("DeepL_API"))
 klient = kadal.Client()
 Morning_Messages = []
 TL_Language = {}
+Hoyolab_Cookies = {}
 gura_images=[]
 waifupic_categories = [
     "waifu",
@@ -109,6 +115,20 @@ for command in bot.commands:
         for subcommand in command.commands:
             bot.remove_command(subcommand.name)
 
+Hoyolab_Salt = requests.get("https://gist.githubusercontent.com/k3rokami/29dad087d40a65cbef3b08ad3ebb599a/raw/f6ce67737864e8a239bbb1a60584a59dcc10339d/Hoyolab.txt")
+SALT = str(Hoyolab_Salt.text).encode()
+
+def encrypt(plaintext, key):
+    salt = hashlib.sha256(SALT + str(key).encode()).digest()
+    kdf = hashlib.pbkdf2_hmac('sha256', str(key).encode(), salt, 100000)
+    f = Fernet(base64.urlsafe_b64encode(kdf))
+    return f.encrypt(plaintext.encode()).decode()
+
+def decrypt(ciphertext, key):
+    salt = hashlib.sha256(SALT + str(key).encode()).digest()
+    kdf = hashlib.pbkdf2_hmac('sha256', str(key).encode(), salt, 100000)
+    f = Fernet(base64.urlsafe_b64encode(kdf))
+    return f.decrypt(ciphertext.encode()).decode()
 
 @bot.event
 async def on_ready():
@@ -169,6 +189,82 @@ async def on_guild_join(guild):
 #         # Sleep for 24 hours
 #         await asyncio.sleep(24 * 60 * 60)
 
+
+@tasks.loop(seconds=1)
+async def genshin_daily():
+    now = datetime.datetime.now(singapore_tz)
+    current_time = now.time().strftime("%H:%M:%S")
+    if current_time == "00:10:00":
+        for accounts in Hoyolab_Cookies.keys():
+            cookies = Hoyolab_Cookies.get(accounts)
+            hashed_ltuid = cookies.get('ltuid')
+            hashed_ltoken = cookies.get('ltoken')
+            ltuid = decrypt(hashed_ltuid, accounts)
+            ltoken = decrypt(hashed_ltoken, accounts)
+            user = await bot.fetch_user(accounts)
+            channel = await user.create_dm()
+            if cookies is None:
+                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/set_cookies'",empheral=True)
+                return
+            client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
+            try:
+                reward = await client.claim_daily_reward()
+            except genshin.AlreadyClaimed:
+                # print("Daily reward already claimed")
+                signed_in, claimed_rewards = await client.get_reward_info()
+                embed = discord.Embed(
+                    title="Genshin Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
+                embed.add_field(name="Reward:", value="Daily reward already claimed",inline=False)
+                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                embed.set_footer(
+                    text=f"Requested by {user.mention}",
+                    icon_url=user.display_avatar,
+                )
+                await channel.send(embed=embed, delete_after=1800)
+                # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
+            except Exception as e:
+                if not genshin.AccountNotFound:
+                    claimed_rewards = await client.get_reward_info()
+                    embed = discord.Embed(
+                        title="Genshin Hoyolab Daily Check-In",
+                        color=0xFFB6C1,
+                    )
+                    embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                    embed.set_footer(
+                        text=f"Requested by {user.mention}",
+                        icon_url=user.display_avatar,
+                    )
+                    await channel.send(embed=embed, delete_after=1800)
+                else:
+                    embed = discord.Embed(
+                        title="Genshin Hoyolab Daily Check-In",
+                        color=0xFFB6C1,
+                    )
+                    embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+                    embed.set_footer(
+                        text=f"Requested by {user.mention}",
+                        icon_url=user.display_avatar,
+                    )
+                    await channel.send(embed=embed, delete_after=1800)
+            else:
+                # print(f"Claimed {reward.amount}x {reward.name}")
+                signed_in, claimed_rewards = await client.get_reward_info()
+                embed = discord.Embed(
+                    title="Genshin Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
+                embed.add_field(name="Reward:", value=f"{reward.amount}x {reward.name}",inline=False)
+                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                embed.set_footer(
+                    text=f"Requested by {user.mention}",
+                    icon_url=user.display_avatar,
+                )
+                await channel.send(embed=embed, delete_after=1800)
+        # Sleep for 24 hours
+        await asyncio.sleep(24 * 60 * 60)
 
 @bot.slash_command(name="hello", description="hello")
 async def hello(interaction: discord.Interaction):
@@ -2356,4 +2452,88 @@ async def al_anime(interaction, *, name):
     await interaction.response.defer()
     await interaction.followup.send(embed=embed)
 
+## Genshin
+@bot.slash_command(name="genshin_daily", description="Receive Hoyolab daily check-in reward")
+async def genshin_daily_slash(ctx):
+    cookies = Hoyolab_Cookies.get(ctx.author.id)
+    hashed_ltuid = cookies.get('ltuid')
+    hashed_ltoken = cookies.get('ltoken')
+    ltuid = decrypt(hashed_ltuid, ctx.author.id)
+    ltoken = decrypt(hashed_ltoken, ctx.author.id)
+    if cookies is None:
+        await ctx.respond(f"Cookies are not set for {ctx.author}.Please set cookies with '/set_cookies'",empheral=True)
+        return
+    client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
+    try:
+        reward = await client.claim_daily_reward()
+    except genshin.AlreadyClaimed:
+        # print("Daily reward already claimed")
+        signed_in, claimed_rewards = await client.get_reward_info()
+        embed = discord.Embed(
+            title="Genshin Hoyolab Daily Check-In",
+            color=0xFFB6C1,
+        )
+        embed.add_field(name="Reward:", value="Daily reward already claimed",inline=False)
+        embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+        embed.set_footer(
+            text=f"Requested by {ctx.interaction.user.name}",
+            icon_url=ctx.interaction.user.display_avatar.url,
+        )
+        await ctx.response.send_message(embed=embed, ephemeral=True)
+    except Exception as e:
+        if not genshin.AccountNotFound:
+            claimed_rewards = await client.get_reward_info()
+            embed = discord.Embed(
+                title="Genshin Hoyolab Daily Check-In",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+            embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+            icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.response.send_message(embed=embed, ephemeral=True)
+        else:
+            embed = discord.Embed(
+                title="Genshin Hoyolab Daily Check-In",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+            icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.response.send_message(embed=embed, ephemeral=True)
+    else:
+        # print(f"Claimed {reward.amount}x {reward.name}")
+        signed_in, claimed_rewards = await client.get_reward_info()
+        embed = discord.Embed(
+            title="Genshin Hoyolab Daily Check-In",
+            color=0xFFB6C1,
+        )
+        embed.add_field(name="Reward:", value=f"{reward.amount}x {reward.name}",inline=False)
+        embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+        embed.set_footer(
+            text=f"Requested by {ctx.interaction.user.name}",
+            icon_url=ctx.interaction.user.display_avatar.url,
+        )
+        await ctx.response.send_message(embed=embed, ephemeral=True)
+        
+@bot.slash_command(name="set_cookies", description="Set cookies for Genshin Impact API requests")
+async def set_cookies(ctx, ltuid: int, ltoken: str):
+    hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
+    hashed_ltoken = encrypt(ltoken, ctx.author.id)
+    Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken}
+    embed = discord.Embed(
+            title="Hoyolab Cookies",
+            description="Cookies set successfully!",
+            color=0xFFB6C1,
+        )
+    embed.set_footer(
+        text=f"Requested by {ctx.interaction.user.name}",
+        icon_url=ctx.interaction.user.display_avatar.url,
+    )
+    await ctx.response.send_message(embed=embed, ephemeral=True)
+    
 bot.run(os.environ.get("Discord_Token"))
