@@ -53,7 +53,7 @@ deepl.api_key = str(os.environ.get("DeepL_API"))
 klient = kadal.Client()
 Morning_Messages = []
 TL_Language = {}
-Hoyolab_Cookies = {}}
+Hoyolab_Cookies = {}
 gura_images=[]
 waifupic_categories = [
     "waifu",
