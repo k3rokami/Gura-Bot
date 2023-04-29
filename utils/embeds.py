@@ -62,9 +62,9 @@ def error_embed(title: str, description: str):
 def help_embed():
     helpmessage = discord.Embed(
         color = Color.nitro_pink(),
-        title="🎏   How to use Karin to search images!",
+        title="🎏   How to use Gura to search images!",
         description=f"""
-        Using Karin to search is very easy and straightforward, you only need to say `!saucenao` along with the URL or the file of the anime image. In addition, you can also mention someone to get the source of their profile picture.\n\nThere are aliases to this command, like **"!source", "!sauce", "!sause", "!nao", "!search"**\n\nWhen sending a request, you must use direct image URL. The image must not have unnecessary borders/information, this increases the chances of getting accurate results. Karin only picks results with the similarity of **{float(os.environ.get('SauceNao_MinSimilarity'))}** and above.\n\nPlease do keep in mind that results are not always accurate. To check their accuracy, please refer to the similarity percentage and thumbnail picture.\n\n**Video Demonstration:**        
+        Using Gura to search is very easy and straightforward, you only need to say `!saucenao` along with the URL or the file of the anime image. In addition, you can also mention someone to get the source of their profile picture.\n\nThere are aliases to this command, like **"!source", "!sauce", "!sause", "!nao", "!search"**\n\nWhen sending a request, you must use direct image URL. The image must not have unnecessary borders/information, this increases the chances of getting accurate results. Karin only picks results with the similarity of **{float(os.environ.get('SauceNao_MinSimilarity'))}** and above.\n\nPlease do keep in mind that results are not always accurate. To check their accuracy, please refer to the similarity percentage and thumbnail picture.\n\n**Video Demonstration:**        
         """
     ).set_image(
         url = "https://cdn.upload.systems/uploads/kXz4TvKf.gif"
