@@ -36,7 +36,7 @@
 - Image Generation
 - Anime/Manga Search via Anilist
 - Translator
-- cHoyolab Check-In (β)
+- Hoyolab Check-In (β)
 
 
 ## 📝**To-do**
