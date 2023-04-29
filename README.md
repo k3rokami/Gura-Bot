@@ -42,8 +42,9 @@
 
 ## 📝**To-do**
 - [x] Update readme
-- [ ] Add daily check-in for Honkai
-- [ ] Update code to use cogs (Not implementing for now)
+- [x] Add daily check-in for Honkai
+- [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
+- [ ] Rewrite code to use Cogs (β)
 
 ## 🚀Installation
 <ol>
