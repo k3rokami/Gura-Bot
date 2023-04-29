@@ -33,12 +33,11 @@
 </ul>
 
 ## 🎏**Features**
-<ul>
-<li>Image Generation</li>
-<li>Anime/Manga Search via Anilist</li>
-<li>Translator</li>
-<li>Hoyolab Check-In (β)</li>
-</ul>
+- Image Generation
+- Anime/Manga Search via Anilist
+- Translator
+- cHoyolab Check-In (β)
+
 
 ## 📝**To-do**
 - Sorted by priority 
