@@ -41,10 +41,13 @@
 </ul>
 
 ## 📝**To-do**
+- Sorted by priority 
 - [x] Update readme
 - [x] Add daily check-in for Honkai
+- [ ] Rewrite code to use Cogs
+- [ ] Add code redeemtion for Genshin,Honkai,Star Rail
+- [ ] Add EnkaNetwork things (Genshin)
 - [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
-- [ ] Rewrite code to use Cogs (β)
 
 ## 🚀Installation
 <ol>
