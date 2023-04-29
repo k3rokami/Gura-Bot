@@ -24,7 +24,7 @@ import requests
 from deep_translator import GoogleTranslator
 from discord import option
 from discord.errors import NotFound
-from discord.ext import commands, pages, tasks
+from discord.ext import commands, pages
 from discord.ext.pages.pagination import PaginatorButton
 from dotenv import load_dotenv
 from kadal import MediaNotFound
