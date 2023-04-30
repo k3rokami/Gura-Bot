@@ -1,11 +1,7 @@
-import requests
-import hashlib
-import base64
 import genshin
 import discord
 
 from cogs.genshin import Hoyolab_Cookies,encrypt,decrypt
-from cryptography.fernet import Fernet
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
 
