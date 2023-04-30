@@ -2,7 +2,6 @@ import kadal
 import discord 
 
 from kadal import MediaNotFound
-from discord.commands import SlashCommandGroup
 from discord.ext import commands
 
 klient = kadal.Client()
