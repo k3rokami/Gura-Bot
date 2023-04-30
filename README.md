@@ -33,17 +33,20 @@
 </ul>
 
 ## 🎏**Features**
-<ul>
-<li>Image Generation</li>
-<li>Anime/Manga Search via Anilist</li>
-<li>Translator</li>
-<li>Hoyolab Check-In (β)</li>
-</ul>
+- Image Generation
+- Anime/Manga Search via Anilist
+- Translator
+- Hoyolab Check-In (β)
+
 
 ## 📝**To-do**
+- Sorted by priority 
 - [x] Update readme
-- [ ] Add daily check-in for Honkai
-- [ ] Update code to use cogs (Not implementing for now)
+- [x] Add daily check-in for Honkai
+- [ ] Rewrite code to use Cogs
+- [ ] Add code redeemtion for Genshin,Honkai,Star Rail
+- [ ] Add EnkaNetwork things (Genshin)
+- [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
 
 ## 🚀Installation
 <ol>
