@@ -179,9 +179,9 @@ class HelpDropdownView(discord.ui.View):
         # Adds the dropdown to our view object.
         self.add_item(HelpMenuDropdown())
             
-class MyCog(commands.Cog):
-    def __init__(self, bot_: discord.Bot):
-        self.bot = bot_
+class HelpMenu(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
         
     help = SlashCommandGroup("help", "Various help commands for Gura!")
         
@@ -483,5 +483,6 @@ class MyCog(commands.Cog):
             await interaction.response.send_message(embed=embed)
         else:
             await interaction.response.send_message("Invalid command selected.")
+
 def setup(bot):
-    bot.add_cog(MyCog(bot))
+    bot.add_cog(HelpMenu(bot))
