@@ -2,6 +2,7 @@ version = 1
 
 exclude_patterns = [
   "/utils/embeds.py",
+  "/Archive/",
 ]
 
 [[analyzers]]
