@@ -1,5 +1,4 @@
 py-cord
-discord-py-slash-command
 deepl
 pytz
 orjson
