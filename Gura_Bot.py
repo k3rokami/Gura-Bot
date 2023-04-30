@@ -23,7 +23,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.0"
+VERSION = "v1.2.1"
 
 load_dotenv()
 

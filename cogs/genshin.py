@@ -33,14 +33,14 @@ class GenshinImpact(commands.Cog):
     @genshin.command(name="daily", description="Receive Hoyolab daily check-in reward")
     async def daily(self, ctx):
         cookies = Hoyolab_Cookies.get(ctx.author.id)
+        if cookies == None:
+            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=True)
+            return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')
         ltuid = decrypt(hashed_ltuid, ctx.author.id)
         ltoken = decrypt(hashed_ltoken, ctx.author.id)
-        if cookies is None:
-            await ctx.respond(f"Cookies are not set for {ctx.author}.Please set cookies with '/genshin cookies'",empheral=True)
-            return
-        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHN)
+        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
         try:
             reward = await client.claim_daily_reward()
         except genshin.AlreadyClaimed:

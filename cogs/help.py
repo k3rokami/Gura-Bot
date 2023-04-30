@@ -227,7 +227,7 @@ class HelpMenu(commands.Cog):
         # view.add_item(discord.ui.Button(label = "Vote For Us", style = discord.ButtonStyle.link, url = "https://top.gg/bot/855437723166703616", emoji = "💌"))
         await interaction.response.send_message(embed=embed, view=view)
         
-    @help.command(name="help_moderation", description="Gura's moderation category help.")
+    @help.command(name="moderation", description="Gura's moderation category help.")
     @option("command",
         description="Choose a command to get info about it.",
         choices=["Lock", "Unlock"],
