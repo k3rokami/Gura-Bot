@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import platform
+import random
 import typing
 import genshin
 import hashlib

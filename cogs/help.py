@@ -71,7 +71,7 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="Found an issue?",
-                value="Let me know and create an entry on the repo, you can find the link to the repo by using </about:1091197243870150659>",
+                value="Let me know and create an entry on the repo, you can find the link to the repo by using </utility about:1102562202831040617>",
                 inline=False,
             )
             await interaction.message.edit(embed=embed)
@@ -85,10 +85,10 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="**Commands**",
-                value="> </waifu:1092734488636817436> , </waifusettings:1092734488636817435>",
+                value="> </waifu generate:1092734488636817436> , </waifu settings:1092734488636817436>",
             )
             embed.set_footer(
-                text="Use /help_waifu for extended information on a command."
+                text="Use /help waifu for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -104,7 +104,7 @@ class HelpMenuDropdown(discord.ui.Select):
                 value="> </anime:1092734488636817437> , </manga:1092734488636817438>",
             )
             embed.set_footer(
-                text="Use /help_search for extended information on a command."
+                text="Use /help search for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -117,10 +117,10 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="**Commands**",
-                value="> </translate:1092734488636817432> , </tlsettings:1092734488636817431>",
+                value="> </translate:1092734488636817432> , </translator settings:1102562202831040612>",
             )
             embed.set_footer(
-                text="Use /help_translate for extended information on a command."
+                text="Use /help translate for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -133,10 +133,10 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="**Commands**",
-                value="> </lock:1092734488452272164> , </unlock:1092734488452272165>",
+                value="> </utility lock:1102562202831040617> , </utility unlock:1102562202831040617>",
             )
             embed.set_footer(
-                text="Use /help_moderation for extended information on a command."
+                text="Use /help moderation for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -149,10 +149,10 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="**Commands**",
-                value="> </avatar:1092734488452272162> , </banner:1092734488452272161> , </delete-messages:1092734488452272159> , </private_channel:1092734488452272163> , </user:1092734488452272160>",
+                value="> </utility avatar:1102562202831040617> , </utility banner:1102562202831040617> , </utility delete-messages:1102562202831040617> , </utility private_channel:1102562202831040617> , </utility user:1102562202831040617>",
             )
             embed.set_footer(
-                text="Use /help_utility for extended information on a command."
+                text="Use /help utility for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -165,10 +165,10 @@ class HelpMenuDropdown(discord.ui.Select):
             )
             embed.add_field(
                 name="**Commands**",
-                value="> </about:1092734488452272158> , </ping:1092734488263532647>",
+                value="> </utility about:1102562202831040617> , </utility ping:1102562202831040617>",
             )
             embed.set_footer(
-                text="Use /help_serverinformation for extended information on a command."
+                text="Use /help serverinformation for extended information on a command."
             )
             await interaction.message.edit(embed=embed)
             await interaction.response.defer()
@@ -210,7 +210,7 @@ class HelpMenu(commands.Cog):
         )
         embed.add_field(
             name="Found an issue?",
-            value="Let me know and create an entry on the repo, you can find the link to the repo by using </about:1091197243870150659>",
+            value="Let me know and create an entry on the repo, you can find the link to the repo by using </utility about:1102562202831040617>",
             inline=False,
         )
         global author
@@ -239,8 +239,8 @@ class HelpMenu(commands.Cog):
                 description="Locks a channel.",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> lock [channel]")
-            embed.add_field(name="**Example:**", value="> `/lock channel:#general`")
+            embed.add_field(name="**Syntax:**", value="> utility lock [channel]")
+            embed.add_field(name="**Example:**", value="> `/utility lock channel:#general`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         elif command == "Unlock":
@@ -249,8 +249,8 @@ class HelpMenu(commands.Cog):
                 description="Unlocks a locked channel.",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> unlock [channel]")
-            embed.add_field(name="**Example:**", value="> `/unlock channel:#general`")
+            embed.add_field(name="**Syntax:**", value="> utility unlock [channel]")
+            embed.add_field(name="**Example:**", value="> `/utility unlock channel:#general`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         else:
@@ -270,9 +270,9 @@ class HelpMenu(commands.Cog):
                 description="Generate Image of Waifu's",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> waifu [context] [type] [amount]")
+            embed.add_field(name="**Syntax:**", value="> waifu generate [context] [type] [amount]")
             embed.add_field(
-                name="**Example:**", value="> `/waifu context:neko type:sfw amount:1`"
+                name="**Example:**", value="> `/waifu generate context:neko type:sfw amount:1`"
             )
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
@@ -282,8 +282,8 @@ class HelpMenu(commands.Cog):
                 description="Configure default Waifu Image",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> waifusettings")
-            embed.add_field(name="**Example:**", value="> `/waifusettings`")
+            embed.add_field(name="**Syntax:**", value="> waifu settings")
+            embed.add_field(name="**Example:**", value="> `/waifu settings`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         else:
@@ -348,8 +348,8 @@ class HelpMenu(commands.Cog):
                 description="Translation Settings such as Translator,Language etc.",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> tlsettings")
-            embed.add_field(name="**Example:**", value="> `/tlsettings`")
+            embed.add_field(name="**Syntax:**", value="> translator settings")
+            embed.add_field(name="**Example:**", value="> `/translator settings`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         else:
@@ -376,10 +376,10 @@ class HelpMenu(commands.Cog):
                 description="Gets your avatar image or selected user with url",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> avatar [membedber]")
+            embed.add_field(name="**Syntax:**", value="> utility avatar [membedber]")
             embed.add_field(
                 name="**Example:**",
-                value="> `/avatar member:@Gura#9851` or `/avatar member:294111764768096266`",
+                value="> `/avatar member:@Gura#9851` or `/utility avatar member:294111764768096266`",
             )
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
@@ -389,10 +389,10 @@ class HelpMenu(commands.Cog):
                 description="Gets your banner or selected user's banner with url",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> banner [member]")
+            embed.add_field(name="**Syntax:**", value="> utility banner [member]")
             embed.add_field(
                 name="**Example:**",
-                value="> `/banner member:@Gura#9851` or `/banner member:294111764768096266`",
+                value="> `/banner member:@Gura#9851` or `/utility banner member:294111764768096266`",
             )
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
@@ -402,8 +402,8 @@ class HelpMenu(commands.Cog):
                 description="Deletes message from DM.Only works in DM.",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> delete-message [count]")
-            embed.add_field(name="**Example:**", value="> `/delete-messages count:1`")
+            embed.add_field(name="**Syntax:**", value="> utility delete-message [count]")
+            embed.add_field(name="**Example:**", value="> `/utility delete-messages count:1`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         elif command == "private_channel":
@@ -413,10 +413,10 @@ class HelpMenu(commands.Cog):
                 color=discord.Color.blurple(),
             )
             embed.add_field(
-                name="**Syntax:**", value="> private_channel <time> <channel_name>"
+                name="**Syntax:**", value="> utility private_channel <time> <channel_name>"
             )
             embed.add_field(
-                name="**Example:**", value="> /private_channel time:10s channel_name:Gura"
+                name="**Example:**", value="> /utility private_channel time:10s channel_name:Gura"
             )
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
@@ -446,8 +446,8 @@ class HelpMenu(commands.Cog):
                 description="Retrieve user information such as Join Date,Permissions etc.",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> user")
-            embed.add_field(name="**Example:**", value="> `/user`")
+            embed.add_field(name="**Syntax:**", value="> utility user")
+            embed.add_field(name="**Example:**", value="> `/utility user`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         else:
@@ -467,8 +467,8 @@ class HelpMenu(commands.Cog):
                 description="Display information about Gawr Gura",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> about")
-            embed.add_field(name="**Example:**", value="> `/about`")
+            embed.add_field(name="**Syntax:**", value="> utility about")
+            embed.add_field(name="**Example:**", value="> `/utility about`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         elif command == "ping":
@@ -477,8 +477,8 @@ class HelpMenu(commands.Cog):
                 description="Retrieve Gura's Latency",
                 color=discord.Color.blurple(),
             )
-            embed.add_field(name="**Syntax:**", value="> ping")
-            embed.add_field(name="**Example:**", value="> `/ping`")
+            embed.add_field(name="**Syntax:**", value="> utility ping")
+            embed.add_field(name="**Example:**", value="> `/utility ping`")
             embed.set_footer(text="<> means requird, [] means optional")
             await interaction.response.send_message(embed=embed)
         else:
