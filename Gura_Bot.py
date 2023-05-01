@@ -634,7 +634,7 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
                 description=f"Failed to get results from the image.\n\n**Error:** {e}",
             )
         )
-
+        
 # @bot.slash_command(name="unload", description="Unload a specific cog")
 # async def unload_cog(ctx, cog_name: str):
 #     try:
