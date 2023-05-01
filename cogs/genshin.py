@@ -7,6 +7,7 @@ import discord
 from cryptography.fernet import Fernet
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
+from discord import option
 
 Hoyolab_Cookies = {}
 
@@ -98,10 +99,11 @@ class GenshinImpact(commands.Cog):
             await ctx.response.send_message(embed=embed, ephemeral=True)
             
     @genshin.command(name="cookies", description="Set cookies for Genshin Impact API requests")
-    async def cookies(self, ctx, ltuid: int, ltoken: str):
+    async def cookies(self, ctx, ltuid: int, ltoken: str, cookie_token: str):
         hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
-        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken}
+        hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
+        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token}
         embed = discord.Embed(
                 title="Hoyolab Cookies",
                 description="Cookies set successfully!",
@@ -112,6 +114,93 @@ class GenshinImpact(commands.Cog):
             icon_url=ctx.interaction.user.display_avatar.url,
         )
         await ctx.response.send_message(embed=embed, ephemeral=True)
+    
+    #Get codes
+    if requests.get("https://genshin-redeem-code.vercel.app/codes").status_code == 200:
+        data = requests.get("https://genshin-redeem-code.vercel.app/codes").json()
+        codes = [code['code'] for code in data]
+    else:
+        print("Failed to retrieve data from server.")
+
+    @genshin.command(name="codes", description="Redeem Genshin Codes")
+    @option("code",
+        description = "Enter the redemption code or choose from the list.",
+        choices = codes,
+        required = False
+    )
+    async def codes(self, ctx, code: str = None):
+        cookies = Hoyolab_Cookies.get(ctx.author.id)
+        if cookies == None:
+            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=True)
+            return
+        hashed_ltuid = cookies.get('ltuid')
+        hashed_ltoken = cookies.get('ltoken')
+        hashed_cookie_token = cookies.get('cookie_token')
+        ltuid = decrypt(hashed_ltuid, ctx.author.id)
+        ltoken = decrypt(hashed_ltoken, ctx.author.id)
+        cookie_token = decrypt(hashed_cookie_token, ctx.author.id)
+        client = genshin.Client(cookies={"ltuid": ltuid, "ltoken": ltoken,"account_id": ltuid,"cookie_token": cookie_token})
+        try:
+            await client.redeem_code(code,uid=await client._get_uid(game=genshin.Game.GENSHIN))
+            embed = discord.Embed(
+                title="Genshin Redeemption Code",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="Redemption Successful:", value=f"You have successfully redeemed code: {code}",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.send(embed=embed)
             
+        except genshin.RedemptionInvalid:
+            embed = discord.Embed(
+                title="Genshin Redeemption Code",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="Redemption Code Invalid:", value="Current redemption code is invalid.",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.send(embed=embed)
+            
+        except genshin.RedemptionCooldown:
+            embed = discord.Embed(
+                title="Genshin Redeemption Code",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="Redemption Code Cooldown:", value="You're redeeming too fast! Please try again later.",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.send(embed=embed)
+            
+        except genshin.RedemptionClaimed:
+            embed = discord.Embed(
+                title="Genshin Redeemption Code",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="Redemption Code Claimed:", value="Current redemption code has been claimed already.",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.send(embed=embed)
+            
+        except Exception as e:
+            embed = discord.Embed(
+                title="Genshin Redeemption Code",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            await ctx.send(embed=embed)
+            print(f"An exception occurred: {e}")
+    
 def setup(bot):
     bot.add_cog(GenshinImpact(bot))

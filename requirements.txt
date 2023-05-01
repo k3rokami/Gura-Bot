@@ -8,3 +8,5 @@ deep_translator
 kadal
 genshin
 cryptography
+enkanetwork.py
+enkacard
