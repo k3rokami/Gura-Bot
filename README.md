@@ -7,10 +7,8 @@
 
 <h3 align="center">Gawr Gura</h3>
   <p align="center">
-    Stripped down version of Kurokami's personal discord bot
+    Kurokami's personal discord bot
     <br />
-    <a href="https://github.com/k3rokami/Gura-Bot">Gura Bot Repo</a>
-    ·
     <a href="https://github.com/k3rokami/Gura-Bot/issues">Bug Report</a>
     ·
     <a href="https://github.com/k3rokami/Gura-Bot/issues">Feature Request</a>
@@ -44,7 +42,9 @@
 - [x] Update readme
 - [x] Add daily check-in for Honkai
 - [x] Rewrite code to use Cogs
-- [ ] Add code redeemtion for Genshin,Honkai,Star Rail(Not possible for now,unless found a way to get cookie_token without login information or input manually)
+- [x] Add code redeemtion for Genshin
+- [ ] Add bot link after invite banner is done
+- [ ] Add code redeemtion for Genshin,Honkai,Star Rail
 - [ ] Add EnkaNetwork things (Genshin)
 - [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
 
@@ -54,7 +54,7 @@
 Create a new bot from https://discord.com/developers/applications and save your bot token(Under bot settings)
 </li>
 <li>
-Install <a href = "https://www.python.org/downloads/">Python</a> 3.8 or higher and <a href = "https://git-scm.com/downloads">Git</a> and add them to the path</li>
+Install <a href = "https://www.python.org/downloads/">Python 3.8</a> or higher and <a href = "https://git-scm.com/downloads">Git</a> and add them to the path</li>
 </li>
 <li>
 Git-clone this repo & change directory
@@ -87,4 +87,5 @@ python Gura_Bot.py
 Distributed under the [MIT](https://github.com/k3rokami/Gura-Bot/blob/main/LICENSE) license. See [LICENSE](/LICENSE) for more information
 
 ## 💕**Credits**
-[Valentine's day gura (Bot Profile Picture)](https://www.pixiv.net/en/artworks/96190259) by [Klaius](https://www.pixiv.net/en/users/6581079)
+[Valentine's day gura (Bot Profile Picture)](https://www.pixiv.net/en/artworks/96190259) by [Klaius](https://www.pixiv.net/en/users/6581079)<br />
+[ShinobiBot](https://github.com/Shinobi7k/ShinobiBot) by [Shinobi7K](https://github.com/Shinobi7k/)
