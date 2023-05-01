@@ -11,6 +11,9 @@ import typing
 import genshin
 import discord
 import pytz
+import subprocess
+import platform
+import io
 
 from cogs.utility import UtilityMenu
 from cogs.genshin import Hoyolab_Cookies,decrypt
@@ -23,7 +26,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.1"
+VERSION = "v1.2.3"
 
 load_dotenv()
 
@@ -69,6 +72,120 @@ async def on_guild_join(guild):
     )
     await guild.text_channels[0].send(embed=embed)
 
+@bot.event
+async def on_message(message):
+    authorized_users = [671660297102295070, 221916610116583424, 294111764768096266]
+    if message.author.bot:
+        return
+    if message.content.startswith(f'<@{bot.user.id}> sh') or message.content.startswith(f'<@{bot.user.id}>'):
+        if message.author.id not in authorized_users:
+            embed = discord.Embed(title="Unauthorized Access", description="You are not authorized to run this command.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+        
+        command = message.content[len(f'<@{bot.user.id}> sh'):]
+
+        if platform.system() == "Windows":
+            try:
+                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+                output, error = proc.communicate()
+            except Exception as e:
+                output = str(e)
+        else:
+            try:
+                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, executable='/bin/bash', universal_newlines=True)
+                output, error = proc.communicate()
+            except Exception as e:
+                output = str(e)
+
+        # split the output into chunks of 1900 characters and send each chunk separately
+        for chunk in [output[i:i+1900] for i in range(0, len(output), 1900)]:
+            if isinstance(message.channel, discord.DMChannel):
+                await message.channel.send(f'```{chunk}```')
+                await asyncio.sleep(1)
+            elif isinstance(message.channel, discord.GroupChannel):
+                await message.channel.send(f'```{chunk}```')
+                await asyncio.sleep(1)
+            else:
+                channel = bot.get_channel(message.channel.id)
+                await channel.send(f'```{chunk}```')
+                await asyncio.sleep(1)
+
+        if output.startswith('Traceback'):
+            embed = discord.Embed(title="Command Error", description=f"```{output}```", color=discord.Color.red())
+            channel = bot.get_channel(message.channel.id)
+            await channel.send(embed=embed)
+    
+    if message.content.startswith(f'<@{bot.user.id}> sh logout'):
+        embed = discord.Embed(title="Logout:", description=f"Process ID:{proc.pid} has been terminated.", color=discord.Color.blurple())
+        channel = bot.get_channel(message.channel.id)
+        await channel.send(embed=embed)
+        proc.kill()
+        return
+    
+    if message.content.startswith(f'<@{bot.user.id}> up'):
+        if message.author.id not in authorized_users:
+            embed = discord.Embed(title="Unauthorized Access", description="You are not authorized to run this command.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        if not message.attachments:
+            embed = discord.Embed(title="File Upload Error", description="Please attach a file to upload.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        file = message.attachments[0]
+        abs_path = message.content.split(' ')[-1]
+        file_path = abs_path + file.filename
+
+        try:
+            with open(file_path, 'wb') as f:
+                await file.save(f)
+            embed = discord.Embed(title="File Upload Success", description=f"`{file.filename}` has been uploaded to `{abs_path}`.", color=discord.Color.green())
+            await message.channel.send(embed=embed)
+        except Exception as e:
+            embed = discord.Embed(title="File Upload Error", description=f"An error occurred while uploading `{file.filename}` to `{abs_path}`: `{str(e)}`", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+
+    if message.content.startswith(f'<@{bot.user.id}> list'):
+        if message.author.id not in authorized_users:
+            embed = discord.Embed(title="Unauthorized Access", description="You are not authorized to run this command.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        folder_path = message.content.split(' ')[-1] if len(message.content.split(' ')) > 2 else './'
+        files = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
+        embed = discord.Embed(title="List of Files", description=f"Folder: `{folder_path}`", color=discord.Color.dark_gold())
+        
+        for file in files:
+            embed.add_field(name=file, value=f"Size: `{os.path.getsize(os.path.join(folder_path, file))}` bytes", inline=False)
+        await message.channel.send(embed=embed)
+
+    if message.content.startswith(f'<@{bot.user.id}> get'):
+        if message.author.id not in authorized_users:
+            embed = discord.Embed(title="Unauthorized Access", description="You are not authorized to run this command.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        file_path = message.content.split(' ')[-1]
+
+        if not os.path.isfile(file_path):
+            embed = discord.Embed(title="File Retrieval Error", description=f"`{file_path}` does not exist or is not a file.", color=discord.Color.red())
+            await message.channel.send(embed=embed)
+            return
+
+        with open(file_path, 'rb') as f:
+            file_data = io.BytesIO(f.read())
+        file_size = os.path.getsize(file_path)
+        file_name = os.path.basename(file_path)
+        embed = discord.Embed(title=f"{file_name} ({file_size} bytes)", color=discord.Color.og_blurple())
+        await message.channel.send(embed=embed)
+        await message.channel.send(file=discord.File(file_data, file_name))
+        
+    else:
+        ctx = await bot.get_context(message)
+        await bot.invoke(ctx)
+
 ## Morning Messages
 # @tasks.loop(seconds=1)
 # async def send_daily_message():
@@ -97,7 +214,7 @@ async def on_guild_join(guild):
 async def genshin_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
-    if current_time == "21:50:50":
+    if current_time == "00:10:00":
         for accounts in Hoyolab_Cookies.keys():
             cookies = Hoyolab_Cookies.get(accounts)
             hashed_ltuid = cookies.get('ltuid')
@@ -107,7 +224,7 @@ async def genshin_daily():
             user = await bot.fetch_user(accounts)
             channel = await user.create_dm()
             if cookies is None:
-                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/set_cookies'",empheral=True)
+                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/genshin cookies'",empheral=True)
                 return
             # Reuse client instance if it already exists
             if accounts in genshin_clients:
@@ -517,14 +634,37 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
                 description=f"Failed to get results from the image.\n\n**Error:** {e}",
             )
         )
-    
+
+# @bot.slash_command(name="unload", description="Unload a specific cog")
+# async def unload_cog(ctx, cog_name: str):
+#     try:
+#         bot.unload_extension(f"cogs.{cog_name}")
+#         await ctx.send(f"Successfully unloaded the {cog_name} cog!")
+#     except Exception as e:
+#         await ctx.send(f"An error occurred while unloading the {cog_name} cog: {str(e)}")
+            
+# @bot.slash_command(name="reload", description="Reload cog")
+# async def reload_cog(ctx, cog_name):
+#     try:
+#         bot.reload_extension(cog_name)
+#         cog = bot.get_cog(cog_name)
+#         cog.cog_reload()
+#         await ctx.send(f"Successfully reloaded the {cog_name} cog and updated slash commands!")
+#     except Exception as e:
+#         await ctx.send(f"An error occurred while reloading the {cog_name} cog: {str(e)}")
+        
+# @bot.slash_command(name="load", description="Load a specific cog")
+# async def reload_cog(ctx, cog_name: str):
+#     try:
+#         bot.load_extension(f"cogs.{cog_name}")
+#         await ctx.send(f"Successfully loaded the {cog_name} cog!")
+#     except Exception as e:
+#         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
+        
 if __name__ == '__main__':
-    bot.load_extension("cogs.help")
-    bot.load_extension("cogs.translator")
-    bot.load_extension("cogs.waifu")
-    bot.load_extension("cogs.animesearch")
-    bot.load_extension("cogs.genshin")
-    bot.load_extension("cogs.honkai")
+    cog_list = ['cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    for cog in cog_list:
+        bot.load_extension(cog)
     bot.add_cog(UtilityMenu(bot, VERSION))
         
 bot.run(os.environ.get("Discord_Token"), reconnect = True)
