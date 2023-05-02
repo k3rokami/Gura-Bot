@@ -16,7 +16,8 @@ import platform
 import io
 
 from cogs.utility import UtilityMenu
-from cogs.genshin import Hoyolab_Cookies,decrypt
+from cogs.genshin import decrypt
+from cogs.hoyolab import Hoyolab_Cookies
 from urllib.request import getproxies
 from discord.errors import NotFound
 from discord.ext import commands, pages, tasks
@@ -26,7 +27,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.3"
+VERSION = "v1.2.4"
 
 load_dotenv()
 
@@ -209,24 +210,22 @@ async def on_message(message):
 #         # Sleep for 24 hours
 #         await asyncio.sleep(24 * 60 * 60)
 
-
 @tasks.loop(seconds=1)
 async def genshin_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
-    if current_time == "00:10:00":
+    if current_time == "10:43:00":
         for accounts in Hoyolab_Cookies.keys():
             cookies = Hoyolab_Cookies.get(accounts)
+            if cookies is None:
+                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/genshin cookies'",empheral=True)
+                return
             hashed_ltuid = cookies.get('ltuid')
             hashed_ltoken = cookies.get('ltoken')
             ltuid = decrypt(hashed_ltuid, accounts)
             ltoken = decrypt(hashed_ltoken, accounts)
             user = await bot.fetch_user(accounts)
             channel = await user.create_dm()
-            if cookies is None:
-                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/genshin cookies'",empheral=True)
-                return
-            # Reuse client instance if it already exists
             if accounts in genshin_clients:
                 client = genshin_clients[accounts]
             else:

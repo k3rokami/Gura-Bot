@@ -4,12 +4,12 @@ import base64
 import genshin
 import discord
 
+from cogs.hoyolab import Hoyolab_Cookies
 from cryptography.fernet import Fernet
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
 from discord import option
 
-Hoyolab_Cookies = {}
 
 Hoyolab_Salt = requests.get("https://gist.githubusercontent.com/k3rokami/29dad087d40a65cbef3b08ad3ebb599a/raw/f6ce67737864e8a239bbb1a60584a59dcc10339d/Hoyolab.txt")
 SALT = str(Hoyolab_Salt.text).encode()
@@ -104,6 +104,7 @@ class GenshinImpact(commands.Cog):
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
         Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token}
+        print(Hoyolab_Cookies)
         embed = discord.Embed(
                 title="Hoyolab Cookies",
                 description="Cookies set successfully!",
