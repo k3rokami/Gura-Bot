@@ -3,6 +3,7 @@ import hashlib
 import base64
 import genshin
 import discord
+import datetime
 
 from cogs.hoyolab import Hoyolab_Cookies
 from cryptography.fernet import Fernet
@@ -35,7 +36,17 @@ class GenshinImpact(commands.Cog):
     async def daily(self, ctx):
         cookies = Hoyolab_Cookies.get(ctx.author.id)
         if cookies == None:
-            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=True)
+            embed = discord.Embed(
+                title="Genshin Hoyolab Daily Check-In",
+                color=0xFFB6C1,
+            )
+            embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+            embed.set_footer(
+                text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+            await ctx.response.send_message(embed=embed, ephemeral=False)
             return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')
@@ -51,13 +62,14 @@ class GenshinImpact(commands.Cog):
                 title="Genshin Hoyolab Daily Check-In",
                 color=0xFFB6C1,
             )
-            embed.add_field(name="Reward:", value="Daily reward already claimed",inline=False)
+            embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
             embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
             embed.set_footer(
-                text=f"Requested by {ctx.interaction.user.name}",
+                text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            await ctx.response.send_message(embed=embed, ephemeral=True)
+            embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
+            await ctx.response.send_message(embed=embed, ephemeral=False)
         except Exception as e:
             if not genshin.AccountNotFound:
                 claimed_rewards = await client.get_reward_info()
@@ -65,24 +77,25 @@ class GenshinImpact(commands.Cog):
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
-                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                 embed.set_footer(
-                    text=f"Requested by {ctx.interaction.user.name}",
-                icon_url=ctx.interaction.user.display_avatar.url,
+                    text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                await ctx.response.send_message(embed=embed, ephemeral=True)
+                embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                await ctx.response.send_message(embed=embed, ephemeral=False)
             else:
                 embed = discord.Embed(
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+                embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                 embed.set_footer(
-                    text=f"Requested by {ctx.interaction.user.name}",
-                icon_url=ctx.interaction.user.display_avatar.url,
+                    text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                await ctx.response.send_message(embed=embed, ephemeral=True)
+                embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
+                await ctx.response.send_message(embed=embed, ephemeral=False)
         else:
             # print(f"Claimed {reward.amount}x {reward.name}")
             signed_in, claimed_rewards = await client.get_reward_info()
@@ -90,13 +103,14 @@ class GenshinImpact(commands.Cog):
                 title="Genshin Hoyolab Daily Check-In",
                 color=0xFFB6C1,
             )
-            embed.add_field(name="Reward:", value=f"{reward.amount}x {reward.name}",inline=False)
+            embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
             embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
             embed.set_footer(
-                text=f"Requested by {ctx.interaction.user.name}",
+                text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            await ctx.response.send_message(embed=embed, ephemeral=True)
+            embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
+            await ctx.response.send_message(embed=embed, ephemeral=False)
             
     @genshin.command(name="cookies", description="Set cookies for Genshin Impact API requests")
     async def cookies(self, ctx, ltuid: int, ltoken: str, cookie_token: str):
@@ -104,17 +118,17 @@ class GenshinImpact(commands.Cog):
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
         Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token}
-        print(Hoyolab_Cookies)
         embed = discord.Embed(
-                title="Hoyolab Cookies",
-                description="Cookies set successfully!",
-                color=0xFFB6C1,
-            )
+            title="✅ Hoyolab Cookies",
+            description="Cookies set successfully!",
+            color=0xFFB6C1,
+        )
         embed.set_footer(
-            text=f"Requested by {ctx.interaction.user.name}",
+            text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
             icon_url=ctx.interaction.user.display_avatar.url,
         )
-        await ctx.response.send_message(embed=embed, ephemeral=True)
+        embed.set_thumbnail(url="https://i.ibb.co/9VQWfDG/Qiqi-1.png")
+        await ctx.response.send_message(embed=embed, ephemeral=False)
     
     #Get codes
     if requests.get("https://genshin-redeem-code.vercel.app/codes").status_code == 200:
@@ -132,7 +146,7 @@ class GenshinImpact(commands.Cog):
     async def codes(self, ctx, code: str = None):
         cookies = Hoyolab_Cookies.get(ctx.author.id)
         if cookies == None:
-            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=True)
+            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=False)
             return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')

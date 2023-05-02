@@ -27,7 +27,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.4"
+VERSION = "v1.2.5"
 
 load_dotenv()
 
@@ -214,11 +214,20 @@ async def on_message(message):
 async def genshin_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
-    if current_time == "10:43:00":
+    if current_time == "00:10:00":
         for accounts in Hoyolab_Cookies.keys():
             cookies = Hoyolab_Cookies.get(accounts)
             if cookies is None:
-                await channel.send(f"Cookies are not set for {user.mention}.Please set cookies with '/genshin cookies'",empheral=True)
+                embed = discord.Embed(
+                    title="Genshin Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
+                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/gensin cookies` to set your cookies", inline=False)
+                embed.set_footer(
+                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    icon_url=user.display_avatar,
+                )
+                embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                 return
             hashed_ltuid = cookies.get('ltuid')
             hashed_ltoken = cookies.get('ltoken')
@@ -240,12 +249,13 @@ async def genshin_daily():
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="Reward:", value="Daily reward already claimed",inline=False)
+                embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
                 embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                 embed.set_footer(
-                    text=f"Requested by {user.mention}",
+                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
+                embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
                 await channel.send(embed=embed, delete_after=1800)
                 # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
             except Exception as e:
@@ -255,23 +265,24 @@ async def genshin_daily():
                         title="Genshin Hoyolab Daily Check-In",
                         color=0xFFB6C1,
                     )
-                    embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
-                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                    embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                     embed.set_footer(
-                        text=f"Requested by {user.mention}",
+                        text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
+                    embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                     await channel.send(embed=embed, delete_after=1800)
                 else:
                     embed = discord.Embed(
                         title="Genshin Hoyolab Daily Check-In",
                         color=0xFFB6C1,
                     )
-                    embed.add_field(name="An error has occured:", value=f"{e}",inline=False)
+                    embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                     embed.set_footer(
-                        text=f"Requested by {user.mention}",
+                        text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
+                    embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
                     await channel.send(embed=embed, delete_after=1800)
             else:
                 # print(f"Claimed {reward.amount}x {reward.name}")
@@ -280,12 +291,13 @@ async def genshin_daily():
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="Reward:", value=f"{reward.amount}x {reward.name}",inline=False)
+                embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
                 embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                 embed.set_footer(
-                    text=f"Requested by {user.mention}",
+                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
+                embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
                 await channel.send(embed=embed, delete_after=1800)
         # Sleep for 24 hours
         await asyncio.sleep(24 * 60 * 60)
