@@ -252,7 +252,7 @@ async def genshin_daily():
                 embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
                 embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                 embed.set_footer(
-                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
                 embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
@@ -267,7 +267,7 @@ async def genshin_daily():
                     )
                     embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                     embed.set_footer(
-                        text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
                     embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
@@ -279,7 +279,7 @@ async def genshin_daily():
                     )
                     embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                     embed.set_footer(
-                        text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
                     embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
@@ -294,7 +294,7 @@ async def genshin_daily():
                 embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
                 embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                 embed.set_footer(
-                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
                 embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
@@ -673,7 +673,8 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
 #         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
         
 if __name__ == '__main__':
-    cog_list = ['cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    cog_list1 = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    cog_list = ['cogs.music','cogs.help']
     for cog in cog_list:
         bot.load_extension(cog)
     bot.add_cog(UtilityMenu(bot, VERSION))

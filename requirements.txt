@@ -10,3 +10,5 @@ genshin
 cryptography
 enkanetwork.py
 enkacard
+pynacl
+yt_dlp
