@@ -27,7 +27,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.5"
+VERSION = "v1.2.6"
 
 load_dotenv()
 
@@ -75,7 +75,8 @@ async def on_guild_join(guild):
 
 @bot.event
 async def on_message(message):
-    authorized_users = [671660297102295070, 221916610116583424, 294111764768096266]
+    users = os.getenv('Authorized_Users').split(',')
+    authorized_users = [int(value) for value in users]
     if message.author.bot:
         return
     if message.content.startswith(f'<@{bot.user.id}> sh') or message.content.startswith(f'<@{bot.user.id}>'):
