@@ -43,10 +43,11 @@
 - [x] Add daily check-in for Honkai
 - [x] Rewrite code to use Cogs
 - [x] Add code redeemtion for Genshin
-- [ ] Add bot link after invite banner is done
-- [ ] Add code redeemtion for Genshin,Honkai,Star Rail
+- [x] Add bot link
+- [x] Add code redeemtion for Genshin,Honkai
+- [ ] Add PyBooru(Danbooru,Moebooru)
 - [ ] Add EnkaNetwork,EnkaCard things (Genshin)
-- [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
+- [ ] Add daily check-in,code redeemption for Star Rail (Waiting for genshin.py to add functionality)
 
 ## 🚀Installation
 <ol>
