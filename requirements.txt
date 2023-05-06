@@ -11,3 +11,4 @@ cryptography
 enkanetwork.py
 enkacard
 yt_dlp
+pybooru
