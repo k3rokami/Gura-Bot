@@ -45,7 +45,7 @@
 - [x] Add code redeemtion for Genshin
 - [ ] Add bot link after invite banner is done
 - [ ] Add code redeemtion for Genshin,Honkai,Star Rail
-- [ ] Add EnkaNetwork things (Genshin)
+- [ ] Add EnkaNetwork,EnkaCard things (Genshin)
 - [ ] Add daily check-in for Star Rail (Waiting for genshin.py to add functionality)
 
 ## 🚀Installation

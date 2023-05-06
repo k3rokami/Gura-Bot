@@ -9,6 +9,8 @@ from deep_translator import GoogleTranslator
 
 JSON_PATH = "./Translate_Language.json"
 
+users = os.getenv('Authorized_Users').split(',')
+authorized_users = [int(value) for value in users]
 deepl.api_key = str(os.environ.get("DeepL_API"))
 TL_Language = {}
 
@@ -208,7 +210,7 @@ class Translator(commands.Cog):
 
 
     @commands.slash_command(name="translate", description="Gura helps you to translate messages")
-    async def translate(self,ctx: discord.ApplicationContext, message: str):
+    async def translate(self, ctx: discord.ApplicationContext, message: str):
         """Translates a message to the selected language using the selected translator."""
         # Retrieve the user's selected language and translator from the JSON file using their user id as the key
         with open(JSON_PATH, "r") as f:
@@ -219,6 +221,12 @@ class Translator(commands.Cog):
         user_translator = selected_lang.get(str(ctx.author.id), selected_lang["default"])[
             "translator"
         ]
+        # Check if the user is authorized to use DeepL
+        if user_translator == "DeepL" and ctx.author.id not in authorized_users:
+            embed = discord.Embed(title="**Translation**", color=discord.Color.red())
+            embed.add_field(name="Error", value="You are not authorized to use DeepL due to API limitations.")
+            await ctx.respond(embed=embed)
+            return
         # Translate the message to the user's selected language using the selected translator
         translated_text = await self.translate_text(message, user_language, user_translator)
 
