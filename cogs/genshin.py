@@ -5,6 +5,7 @@ import genshin
 import discord
 import datetime
 
+from typing import Optional
 from cogs.hoyolab import Hoyolab_Cookies
 from cryptography.fernet import Fernet
 from discord.commands import SlashCommandGroup
@@ -32,8 +33,10 @@ class GenshinImpact(commands.Cog):
         self.bot = bot
         
     genshin = SlashCommandGroup("genshin", "Various Hoyolab Genshin Commands")
+    
     @genshin.command(name="daily", description="Receive Hoyolab daily check-in reward")
-    async def daily(self, ctx):
+    @option("--auto-claim", type=bool, default=False, description="Automatically claim the daily reward")
+    async def daily(self, ctx, auto_claim: Optional[bool] = False):
         cookies = Hoyolab_Cookies.get(ctx.author.id)
         if cookies == None:
             embed = discord.Embed(
@@ -54,7 +57,12 @@ class GenshinImpact(commands.Cog):
         ltoken = decrypt(hashed_ltoken, ctx.author.id)
         client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
         try:
-            reward = await client.claim_daily_reward()
+            if auto_claim:
+                genshin_auto = Hoyolab_Cookies[ctx.author.id]
+                genshin_auto['genshin_auto'] = True
+                reward = await client.claim_daily_reward()
+            else:
+                reward = await client.claim_daily_reward()
         except genshin.AlreadyClaimed:
             # print("Daily reward already claimed")
             signed_in, claimed_rewards = await client.get_reward_info()
@@ -117,7 +125,7 @@ class GenshinImpact(commands.Cog):
         hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
-        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token}
+        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
         embed = discord.Embed(
             title="✅ Hoyolab Cookies",
             description="Cookies set successfully!",
@@ -131,18 +139,17 @@ class GenshinImpact(commands.Cog):
         await ctx.response.send_message(embed=embed, ephemeral=False)
     
     #Get codes
-    if requests.get("https://genshin-redeem-code.vercel.app/codes").status_code == 200:
-        data = requests.get("https://genshin-redeem-code.vercel.app/codes").json()
+    if requests.get("https://genshin-redeem-codes.vercel.app/codes").status_code == 200:
+        data = requests.get("https://genshin-redeem-codes.vercel.app/codes").json()
         codes = [code['code'] for code in data]
     else:
         print("Failed to retrieve data from server.")
 
     @genshin.command(name="codes", description="Redeem Genshin Codes")
     @option("code",
-        description = "Enter the redemption code or choose from the list.",
-        choices = codes,
-        required = False
-    )
+            description="Enter the redemption code or choose from the list.",
+            choices=codes,
+            required=False)
     async def codes(self, ctx, code: str = None):
         cookies = Hoyolab_Cookies.get(ctx.author.id)
         if cookies == None:
@@ -166,6 +173,7 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
+            embed.set_thumbnail(url="https://i.ibb.co/QHmSktv/Keqing-2.png")
             await ctx.send(embed=embed)
             
         except genshin.RedemptionInvalid:
@@ -178,6 +186,7 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
+            embed.set_thumbnail(url="https://i.ibb.co/k59BMm7/Xinyan-1.png")
             await ctx.send(embed=embed)
             
         except genshin.RedemptionCooldown:
@@ -190,6 +199,7 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
+            embed.set_thumbnail(url="https://i.ibb.co/5hyzhrJ/Paimon-3.png")
             await ctx.send(embed=embed)
             
         except genshin.RedemptionClaimed:
@@ -202,6 +212,7 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
+            embed.set_thumbnail(url="https://i.ibb.co/g6kZ6Vk/Ganyu-2.png")
             await ctx.send(embed=embed)
             
         except Exception as e:
@@ -214,6 +225,7 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
+            embed.set_thumbnail(url="https://i.ibb.co/XVVLPC8/Bennett.png")
             await ctx.send(embed=embed)
             print(f"An exception occurred: {e}")
     

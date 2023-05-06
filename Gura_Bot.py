@@ -14,6 +14,7 @@ import pytz
 import subprocess
 import platform
 import io
+import shlex
 
 from cogs.utility import UtilityMenu
 from cogs.genshin import decrypt
@@ -27,7 +28,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.6"
+VERSION = "v1.2.7"
 
 load_dotenv()
 
@@ -95,7 +96,8 @@ async def on_message(message):
                 output = str(e)
         else:
             try:
-                proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, executable='/bin/bash', universal_newlines=True)
+                args = shlex.split(command)
+                proc = subprocess.Popen(args, shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
                 output, error = proc.communicate()
             except Exception as e:
                 output = str(e)
@@ -117,7 +119,7 @@ async def on_message(message):
             embed = discord.Embed(title="Command Error", description=f"```{output}```", color=discord.Color.red())
             channel = bot.get_channel(message.channel.id)
             await channel.send(embed=embed)
-    
+            
     if message.content.startswith(f'<@{bot.user.id}> sh logout'):
         embed = discord.Embed(title="Logout:", description=f"Process ID:{proc.pid} has been terminated.", color=discord.Color.blurple())
         channel = bot.get_channel(message.channel.id)
@@ -223,9 +225,9 @@ async def genshin_daily():
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/gensin cookies` to set your cookies", inline=False)
+                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                 embed.set_footer(
-                    text=f"Requested by {user.mention} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
                 embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
@@ -241,65 +243,169 @@ async def genshin_daily():
             else:
                 client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
                 genshin_clients[accounts] = client
-            try:
-                reward = await client.claim_daily_reward()
-            except genshin.AlreadyClaimed:
-                # print("Daily reward already claimed")
-                signed_in, claimed_rewards = await client.get_reward_info()
-                embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
-                    color=0xFFB6C1,
-                )
-                embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
-                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
-                embed.set_footer(
-                    text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                    icon_url=user.display_avatar,
-                )
-                embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
-                await channel.send(embed=embed, delete_after=1800)
-                # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
-            except Exception as e:
-                if not genshin.AccountNotFound:
-                    claimed_rewards = await client.get_reward_info()
+
+            genshin_auto = cookies.get('genshin_auto')
+            
+            if genshin_auto == True:
+                try:
+                    reward = await client.claim_daily_reward()
+                except genshin.AlreadyClaimed:
+                    # print("Daily reward already claimed")
+                    signed_in, claimed_rewards = await client.get_reward_info()
                     embed = discord.Embed(
                         title="Genshin Hoyolab Daily Check-In",
                         color=0xFFB6C1,
                     )
-                    embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+                    embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
+                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                     embed.set_footer(
                         text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
-                    embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
-                    await channel.send(embed=embed, delete_after=1800)
+                    embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
+                    await channel.send(embed=embed)
+                    # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
+                except Exception as e:
+                    if not genshin.AccountNotFound:
+                        claimed_rewards = await client.get_reward_info()
+                        embed = discord.Embed(
+                            title="Genshin Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                        await channel.send(embed=embed)
+                    else:
+                        embed = discord.Embed(
+                            title="Genshin Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
+                        await channel.send(embed=embed)
                 else:
+                    # print(f"Claimed {reward.amount}x {reward.name}")
+                    signed_in, claimed_rewards = await client.get_reward_info()
                     embed = discord.Embed(
                         title="Genshin Hoyolab Daily Check-In",
                         color=0xFFB6C1,
                     )
-                    embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                    embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
+                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                     embed.set_footer(
                         text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                         icon_url=user.display_avatar,
                     )
-                    embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
-                    await channel.send(embed=embed, delete_after=1800)
+                    embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
+                    await channel.send(embed=embed)
             else:
-                # print(f"Claimed {reward.amount}x {reward.name}")
-                signed_in, claimed_rewards = await client.get_reward_info()
+                pass
+        # Sleep for 24 hours
+        await asyncio.sleep(24 * 60 * 60)
+        
+@tasks.loop(seconds=1)
+async def honkai_daily():
+    now = datetime.datetime.now(singapore_tz)
+    current_time = now.time().strftime("%H:%M:%S")
+    if current_time == "00:10:00":
+        for accounts in Hoyolab_Cookies.keys():
+            cookies = Hoyolab_Cookies.get(accounts)
+            if cookies is None:
                 embed = discord.Embed(
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
-                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                embed.add_field(name="⚠️ Login in first", value="Could not find a Honkai account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
                 embed.set_footer(
                     text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=user.display_avatar,
                 )
-                embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
-                await channel.send(embed=embed, delete_after=1800)
+                embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
+                return
+            hashed_ltuid = cookies.get('ltuid')
+            hashed_ltoken = cookies.get('ltoken')
+            ltuid = decrypt(hashed_ltuid, accounts)
+            ltoken = decrypt(hashed_ltoken, accounts)
+            user = await bot.fetch_user(accounts)
+            channel = await user.create_dm()
+            if accounts in genshin_clients:
+                client = genshin_clients[accounts]
+            else:
+                client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.HONKAI)
+                genshin_clients[accounts] = client
+
+            honkai_auto = cookies.get('honkai_auto')
+            
+            if honkai_auto == True:
+                try:
+                    reward = await client.claim_daily_reward()
+                except genshin.AlreadyClaimed:
+                    # print("Daily reward already claimed")
+                    signed_in, claimed_rewards = await client.get_reward_info()
+                    embed = discord.Embed(
+                        title="Honkai Hoyolab Daily Check-In",
+                        color=0xFFB6C1,
+                    )
+                    embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
+                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                    embed.set_footer(
+                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        icon_url=user.display_avatar,
+                    )
+                    embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
+                    await channel.send(embed=embed)
+                    # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
+                except Exception as e:
+                    if not genshin.AccountNotFound:
+                        claimed_rewards = await client.get_reward_info()
+                        embed = discord.Embed(
+                            title="Honkai Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
+                        await channel.send(embed=embed)
+                    else:
+                        embed = discord.Embed(
+                            title="Honkai Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                        await channel.send(embed=embed)
+                else:
+                    # print(f"Claimed {reward.amount}x {reward.name}")
+                    signed_in, claimed_rewards = await client.get_reward_info()
+                    embed = discord.Embed(
+                        title="Honkai Hoyolab Daily Check-In",
+                        color=0xFFB6C1,
+                    )
+                    embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
+                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                    embed.set_footer(
+                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        icon_url=user.display_avatar,
+                    )
+                    embed.set_thumbnail(url="https://i.ibb.co/9VQWfDG/Qiqi-1.png")
+                    await channel.send(embed=embed)
+            else:
+                pass
         # Sleep for 24 hours
         await asyncio.sleep(24 * 60 * 60)
 
@@ -674,8 +780,7 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
 #         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
         
 if __name__ == '__main__':
-    cog_list1 = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
-    cog_list = ['cogs.music','cogs.help']
+    cog_list = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
     for cog in cog_list:
         bot.load_extension(cog)
     bot.add_cog(UtilityMenu(bot, VERSION))

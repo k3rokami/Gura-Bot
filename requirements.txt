@@ -1,4 +1,4 @@
-py-cord
+py-cord[voice]
 deepl
 pytz
 orjson
@@ -10,5 +10,4 @@ genshin
 cryptography
 enkanetwork.py
 enkacard
-pynacl
 yt_dlp
