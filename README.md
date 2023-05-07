@@ -45,7 +45,7 @@
 - [x] Add code redeemtion for Genshin
 - [x] Add bot link
 - [x] Add code redeemtion for Genshin,Honkai
-- [ ] Edit to store Hoyolab credentials moving forward(To prevent the need to re-enter credentials due to outage)
+- [x] Edit to store Hoyolab credentials moving forward(To prevent the need to re-enter credentials due to outage)
 - [ ] Add EnkaNetwork,EnkaCard things (Genshin)
 - [ ] Add PyBooru(Danbooru,Moebooru)(TBC)
 - [ ] Add daily check-in,code redeemption for Star Rail (Waiting for genshin.py to add functionality)
