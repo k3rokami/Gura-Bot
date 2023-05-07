@@ -780,7 +780,8 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
 #         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
 
 if __name__ == '__main__':
-    cog_list = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    cog_list0 = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    cog_list=['cogs.genshin']
     for cog in cog_list:
         bot.load_extension(cog)
     bot.add_cog(UtilityMenu(bot, VERSION))

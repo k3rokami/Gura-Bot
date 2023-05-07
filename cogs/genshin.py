@@ -228,6 +228,24 @@ class GenshinImpact(commands.Cog):
             embed.set_thumbnail(url="https://i.ibb.co/XVVLPC8/Bennett.png")
             await ctx.send(embed=embed)
             print(f"An exception occurred: {e}")
-    
+            
+    @genshin.command(name='battle_chronicle', description='Get user\'s spiral abyss and exploration progress')
+    async def battle_chronicle(self, ctx):
+        cookies = {"ltuid": 119480035, "ltoken": "cnF7TiZqHAAvYqgCBoSPx5EjwezOh1ZHoqSHf7dT"}
+        client = genshin.Client(cookies)
+        user = await client.get_full_genshin_user(710785423)
+        print(user)
+        print(user.stats.days_active)
+        print(user.abyss.previous.total_stars)
+        spiral_abyss = await client.get_spiral_abyss("710785423", previous=True)
+        general_user_info = await client.get_partial_genshin_user("710785423")
+        print(general_user_info.explorations)
+
+        embed = discord.Embed(title=f"{ctx.interaction.user.name}'s Battle Chronicle")
+        embed.add_field(name="Spiral Abyss", value=f"Floor: {spiral_abyss.floors}, Total Stars: {spiral_abyss.total_stars}")
+        embed.add_field(name="Exploration Progress", value=f"Total Progress: {general_user_info.characters}%")
+
+        await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(GenshinImpact(bot))
