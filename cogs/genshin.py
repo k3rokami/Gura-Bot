@@ -4,14 +4,13 @@ import base64
 import genshin
 import discord
 import datetime
+import json
 
 from typing import Optional
-from cogs.hoyolab import Hoyolab_Cookies
 from cryptography.fernet import Fernet
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
 from discord import option
-
 
 Hoyolab_Salt = requests.get("https://gist.githubusercontent.com/k3rokami/29dad087d40a65cbef3b08ad3ebb599a/raw/f6ce67737864e8a239bbb1a60584a59dcc10339d/Hoyolab.txt")
 SALT = str(Hoyolab_Salt.text).encode()
@@ -37,7 +36,9 @@ class GenshinImpact(commands.Cog):
     @genshin.command(name="daily", description="Receive Hoyolab daily check-in reward")
     @option("--auto-claim", type=bool, default=False, description="Automatically claim the daily reward")
     async def daily(self, ctx, auto_claim: Optional[bool] = False):
-        cookies = Hoyolab_Cookies.get(ctx.author.id)
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
+            cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
             embed = discord.Embed(
                 title="Genshin Hoyolab Daily Check-In",
@@ -58,8 +59,9 @@ class GenshinImpact(commands.Cog):
         client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
         try:
             if auto_claim:
-                genshin_auto = Hoyolab_Cookies[ctx.author.id]
-                genshin_auto['genshin_auto'] = True
+                Hoyolab_Cookies[str(ctx.author.id)]['genshin_auto'] = True
+                with open("Hoyolab_Cookies.json", 'w') as f:
+                    json.dump(Hoyolab_Cookies, f, indent=4)
                 reward = await client.claim_daily_reward()
             else:
                 reward = await client.claim_daily_reward()
@@ -120,12 +122,28 @@ class GenshinImpact(commands.Cog):
             embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
             await ctx.response.send_message(embed=embed, ephemeral=False)
             
+    
     @genshin.command(name="cookies", description="Set cookies for Genshin Impact API requests")
     async def cookies(self, ctx, ltuid: int, ltoken: str, cookie_token: str):
         hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
-        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
+        try:
+            with open('Hoyolab_Cookies.json', 'r') as f:
+                Hoyolab_Cookies = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            # Create a new dictionary if the file does not exist or is empty
+            Hoyolab_Cookies = {}
+        if str(ctx.author.id) in Hoyolab_Cookies:
+            # Update the existing values
+            Hoyolab_Cookies[str(ctx.author.id)]["ltuid"] = hashed_ltuid
+            Hoyolab_Cookies[str(ctx.author.id)]["ltoken"] = hashed_ltoken
+            Hoyolab_Cookies[str(ctx.author.id)]["cookie_token"] = hashed_cookie_token
+        else:
+            # Create a new entry
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
+        with open('Hoyolab_Cookies.json', 'w') as f:
+            json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(
             title="✅ Hoyolab Cookies",
             description="Cookies set successfully!",
@@ -137,7 +155,7 @@ class GenshinImpact(commands.Cog):
         )
         embed.set_thumbnail(url="https://i.ibb.co/9VQWfDG/Qiqi-1.png")
         await ctx.response.send_message(embed=embed, ephemeral=False)
-    
+
     #Get codes
     if requests.get("https://genshin-redeem-codes.vercel.app/codes").status_code == 200:
         data = requests.get("https://genshin-redeem-codes.vercel.app/codes").json()
@@ -151,7 +169,9 @@ class GenshinImpact(commands.Cog):
             choices=codes,
             required=False)
     async def codes(self, ctx, code: str = None):
-        cookies = Hoyolab_Cookies.get(ctx.author.id)
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
+            cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
             await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=False)
             return

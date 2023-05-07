@@ -15,6 +15,7 @@ import subprocess
 import platform
 import io
 import shlex
+import json
 
 from cogs.utility import UtilityMenu
 from cogs.genshin import decrypt
@@ -218,8 +219,10 @@ async def genshin_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
     if current_time == "00:10:00":
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
         for accounts in Hoyolab_Cookies.keys():
-            cookies = Hoyolab_Cookies.get(accounts)
+            cookies = Hoyolab_Cookies.get(str(accounts))
             if cookies is None:
                 embed = discord.Embed(
                     title="Genshin Hoyolab Daily Check-In",
@@ -316,8 +319,10 @@ async def honkai_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
     if current_time == "00:10:00":
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
         for accounts in Hoyolab_Cookies.keys():
-            cookies = Hoyolab_Cookies.get(accounts)
+            cookies = Hoyolab_Cookies.get(str(accounts))
             if cookies is None:
                 embed = discord.Embed(
                     title="Genshin Hoyolab Daily Check-In",

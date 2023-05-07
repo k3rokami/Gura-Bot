@@ -2,6 +2,7 @@ import genshin
 import discord
 import datetime
 import requests
+import json
 
 from typing import Optional
 from cogs.genshin import encrypt,decrypt
@@ -19,7 +20,9 @@ class HonkaiImpact(commands.Cog):
     @honkai.command(name="daily", description="Receive Hoyolab daily check-in reward")
     @option("--auto-claim", type=bool, default=False, description="Automatically claim the daily reward")
     async def daily(self, ctx, auto_claim: Optional[bool] = False):
-        cookies = Hoyolab_Cookies.get(ctx.author.id)
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
+            cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
             embed = discord.Embed(
                 title="Honkai Hoyolab Daily Check-In",
@@ -40,8 +43,9 @@ class HonkaiImpact(commands.Cog):
         client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.HONKAI)
         try:
             if auto_claim:
-                genshin_auto = Hoyolab_Cookies[ctx.author.id]
-                genshin_auto['honkai_auto'] = True
+                Hoyolab_Cookies[str(ctx.author.id)]['genshin_auto'] = True
+                with open("Hoyolab_Cookies.json", 'w') as f:
+                    json.dump(Hoyolab_Cookies, f, indent=4)
                 reward = await client.claim_daily_reward()
             else:
                 reward = await client.claim_daily_reward()
@@ -107,7 +111,22 @@ class HonkaiImpact(commands.Cog):
         hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
-        Hoyolab_Cookies[ctx.author.id] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
+        try:
+            with open('Hoyolab_Cookies.json', 'r') as f:
+                Hoyolab_Cookies = json.load(f)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            # Create a new dictionary if the file does not exist or is empty
+            Hoyolab_Cookies = {}
+        if str(ctx.author.id) in Hoyolab_Cookies:
+            # Update the existing values
+            Hoyolab_Cookies[str(ctx.author.id)]["ltuid"] = hashed_ltuid
+            Hoyolab_Cookies[str(ctx.author.id)]["ltoken"] = hashed_ltoken
+            Hoyolab_Cookies[str(ctx.author.id)]["cookie_token"] = hashed_cookie_token
+        else:
+            # Create a new entry
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
+        with open('Hoyolab_Cookies.json', 'w') as f:
+            json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(
             title="✅ Hoyolab Cookies",
             description="Cookies set successfully!",
@@ -132,7 +151,9 @@ class HonkaiImpact(commands.Cog):
             choices=codes,
             required=False)
     async def codes(self, ctx, code: str = None):
-        cookies = Hoyolab_Cookies.get(ctx.author.id)
+        with open("Hoyolab_Cookies.json", 'r') as f:
+            Hoyolab_Cookies = json.load(f)
+            cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
             await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=False)
             return
