@@ -779,35 +779,6 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
 #     except Exception as e:
 #         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
 
-#testing
-import pybooru
-danbooru_client = pybooru.Danbooru('danbooru', username='k3rokami', api_key='wZPQ5h5cwp5BNogLSfdRrcab')
-
-@bot.slash_command()
-async def search(ctx, tags: str):
-    try:
-        posts = danbooru_client.post_list(tags=tags, limit=1)
-        post = posts[0]
-        print(post)
-        file_url = post.get('file_url')
-        if file_url:
-            await ctx.send(file=discord.File(file_url))
-        else:
-            raise KeyError("No file URL found")
-    except KeyError as e:
-        print(f"KeyError: {e}")
-        await ctx.send("Error: Could not retrieve image.")
-
-@bot.slash_command()
-async def random(ctx, tags: str):
-    """
-    Returns a random image from Danbooru based on provided tags.
-    """
-    results = danbooru_client.post_list(random=True, tags=tags)
-    post = results[0]
-    print(results)
-    await ctx.send(post['file_url'])
-
 if __name__ == '__main__':
     cog_list = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
     for cog in cog_list:
