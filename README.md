@@ -45,8 +45,8 @@
 - [x] Add code redeemtion for Genshin
 - [x] Add bot link
 - [x] Add code redeemtion for Genshin,Honkai
-- [ ] Add PyBooru(Danbooru,Moebooru)
 - [ ] Add EnkaNetwork,EnkaCard things (Genshin)
+- [ ] Add PyBooru(Danbooru,Moebooru)(TBC)
 - [ ] Add daily check-in,code redeemption for Star Rail (Waiting for genshin.py to add functionality)
 
 ## 🚀Installation
