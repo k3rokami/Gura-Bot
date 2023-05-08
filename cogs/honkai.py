@@ -43,7 +43,7 @@ class HonkaiImpact(commands.Cog):
         client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.HONKAI)
         try:
             if auto_claim:
-                Hoyolab_Cookies[str(ctx.author.id)]['genshin_auto'] = True
+                Hoyolab_Cookies[str(ctx.author.id)]['honkai_auto'] = True
                 with open("Hoyolab_Cookies.json", 'w') as f:
                     json.dump(Hoyolab_Cookies, f, indent=4)
                 reward = await client.claim_daily_reward()
