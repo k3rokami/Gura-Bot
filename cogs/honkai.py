@@ -40,7 +40,8 @@ class HonkaiImpact(commands.Cog):
         hashed_ltoken = cookies.get('ltoken')
         ltuid = decrypt(hashed_ltuid, ctx.author.id)
         ltoken = decrypt(hashed_ltoken, ctx.author.id)
-        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.HONKAI)
+        language = cookies.get('language')
+        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},lang=language,game=genshin.Game.HONKAI)
         try:
             if auto_claim:
                 Hoyolab_Cookies[str(ctx.author.id)]['honkai_auto'] = True
@@ -107,10 +108,38 @@ class HonkaiImpact(commands.Cog):
             await ctx.response.send_message(embed=embed, ephemeral=False)
             
     @honkai.command(name="cookies", description="Set cookies for Honkai Impact API requests")
-    async def cookies(self, ctx, ltuid: int, ltoken: str, cookie_token: str):
+    @option("language",
+            description="Enter the redemption code or choose from the list.",
+            choices=["English", "日本語", "한국어", "简体中文", "繁體中文", "Indonesia", "Deutsch", "Español", "Français", "Français", "Português", "Pусский", "ภาษาไทย", "Tiếng Việt"],
+            required=True)
+    async def cookies(self, ctx, ltuid: int, ltoken: str, cookie_token: str, language: str):
         hashed_ltuid = encrypt(str(ltuid), ctx.author.id)
         hashed_ltoken = encrypt(ltoken, ctx.author.id)
         hashed_cookie_token = encrypt(str(cookie_token), ctx.author.id)
+        if language == "English":
+            lang = "en-us"
+        elif language == "日本語":
+            lang = "ja-jp"
+        elif language == "简体中文":
+            lang = "zh-cn"
+        elif language == "繁體中文":
+            lang = "zh-tw"
+        elif language == "Deutsch":
+            lang = "id-id"
+        elif language == "Indonesia":
+            lang = "de-de"
+        elif language == "Español":
+            lang = "es-es"
+        elif language == "Français":
+            lang = "fr-fr"
+        elif language == "Português":
+            lang = "pt-pt"
+        elif language == "Pусский":
+            lang = "ru-ru"
+        elif language == "ภาษาไทย":
+            lang = "th-th"
+        elif language == "Tiếng Việt":
+            lang = "vi-vn"
         try:
             with open('Hoyolab_Cookies.json', 'r') as f:
                 Hoyolab_Cookies = json.load(f)
@@ -122,9 +151,10 @@ class HonkaiImpact(commands.Cog):
             Hoyolab_Cookies[str(ctx.author.id)]["ltuid"] = hashed_ltuid
             Hoyolab_Cookies[str(ctx.author.id)]["ltoken"] = hashed_ltoken
             Hoyolab_Cookies[str(ctx.author.id)]["cookie_token"] = hashed_cookie_token
+            Hoyolab_Cookies[str(ctx.author.id)]["language"]  = lang
         else:
             # Create a new entry
-            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "genshin_auto": False, "honkai_auto": False}
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False}
         with open('Hoyolab_Cookies.json', 'w') as f:
             json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(

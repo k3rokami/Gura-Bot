@@ -29,7 +29,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.7"
+VERSION = "v1.2.8"
 
 load_dotenv()
 
@@ -56,7 +56,7 @@ async def on_ready():
         print(f"Logged in as {bot.user} (ID: {bot.user.id})")
         print(f"Number of slash commands: {len(bot.application_commands)}")
         #send_daily_message.start()
-        genshin_daily.start()
+        hoyolab_daily.start()
         activity = discord.Activity(
             name="Gawr Gura🦈",
             # type=discord.ActivityType.playing,
@@ -215,7 +215,7 @@ async def on_message(message):
 #         await asyncio.sleep(24 * 60 * 60)
 
 @tasks.loop(seconds=1)
-async def genshin_daily():
+async def hoyolab_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
     if current_time == "00:10:00":
@@ -241,16 +241,14 @@ async def genshin_daily():
             ltoken = decrypt(hashed_ltoken, accounts)
             user = await bot.fetch_user(accounts)
             channel = await user.create_dm()
-            if accounts in genshin_clients:
-                client = genshin_clients[accounts]
-            else:
-                client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.GENSHIN)
-                genshin_clients[accounts] = client
 
             genshin_auto = cookies.get('genshin_auto')
+            honkai_auto = cookies.get('honkai_auto')
+            language = cookies.get('language')
             
             if genshin_auto == True:
                 try:
+                    client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},lang=language,game=genshin.Game.GENSHIN)
                     reward = await client.claim_daily_reward()
                 except genshin.AlreadyClaimed:
                     # print("Daily reward already claimed")
@@ -311,46 +309,9 @@ async def genshin_daily():
                     await channel.send(embed=embed)
             else:
                 pass
-        # Sleep for 24 hours
-        await asyncio.sleep(24 * 60 * 60)
-        
-@tasks.loop(seconds=1)
-async def honkai_daily():
-    now = datetime.datetime.now(singapore_tz)
-    current_time = now.time().strftime("%H:%M:%S")
-    if current_time == "00:10:00":
-        with open("Hoyolab_Cookies.json", 'r') as f:
-            Hoyolab_Cookies = json.load(f)
-        for accounts in Hoyolab_Cookies.keys():
-            cookies = Hoyolab_Cookies.get(str(accounts))
-            if cookies is None:
-                embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
-                    color=0xFFB6C1,
-                )
-                embed.add_field(name="⚠️ Login in first", value="Could not find a Honkai account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
-                embed.set_footer(
-                    text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                    icon_url=user.display_avatar,
-                )
-                embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
-                return
-            hashed_ltuid = cookies.get('ltuid')
-            hashed_ltoken = cookies.get('ltoken')
-            ltuid = decrypt(hashed_ltuid, accounts)
-            ltoken = decrypt(hashed_ltoken, accounts)
-            user = await bot.fetch_user(accounts)
-            channel = await user.create_dm()
-            if accounts in genshin_clients:
-                client = genshin_clients[accounts]
-            else:
-                client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},game=genshin.Game.HONKAI)
-                genshin_clients[accounts] = client
-
-            honkai_auto = cookies.get('honkai_auto')
-            
             if honkai_auto == True:
                 try:
+                    client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},lang=language,game=genshin.Game.HONKAI)
                     reward = await client.claim_daily_reward()
                 except genshin.AlreadyClaimed:
                     # print("Daily reward already claimed")
@@ -413,6 +374,47 @@ async def honkai_daily():
                 pass
         # Sleep for 24 hours
         await asyncio.sleep(24 * 60 * 60)
+        
+# @tasks.loop(seconds=1)
+# async def honkai_daily():
+#     now = datetime.datetime.now(singapore_tz)
+#     current_time = now.time().strftime("%H:%M:%S")
+#     if current_time == "09:35:00":
+#         with open("Hoyolab_Cookies.json", 'r') as f:
+#             Hoyolab_Cookies = json.load(f)
+#         for accounts in Hoyolab_Cookies.keys():
+#             cookies = Hoyolab_Cookies.get(str(accounts))
+#             if cookies is None:
+#                 embed = discord.Embed(
+#                     title="Genshin Hoyolab Daily Check-In",
+#                     color=0xFFB6C1,
+#                 )
+#                 embed.add_field(name="⚠️ Login in first", value="Could not find a Honkai account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
+#                 embed.set_footer(
+#                     text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+#                     icon_url=user.display_avatar,
+#                 )
+#                 embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
+#                 return
+#             hashed_ltuid = cookies.get('ltuid')
+#             hashed_ltoken = cookies.get('ltoken')
+#             ltuid = decrypt(hashed_ltuid, accounts)
+#             ltoken = decrypt(hashed_ltoken, accounts)
+#             user = await bot.fetch_user(accounts)
+#             channel = await user.create_dm()
+#             if accounts in genshin_clients:
+#                 client = genshin_clients[accounts]
+#             else:
+                
+#                 genshin_clients[accounts] = client
+#             print("honkai auto")
+            
+#             print(honkai_auto)
+            
+#             else:
+#                 pass
+#         # Sleep for 24 hours
+#         await asyncio.sleep(24 * 60 * 60)
 
 @bot.slash_command(name="hello", description="hello")
 async def hello(interaction: discord.Interaction):
@@ -783,10 +785,27 @@ async def saucenao(ctx: commands.Context, member: discord.Member):
 #         await ctx.send(f"Successfully loaded the {cog_name} cog!")
 #     except Exception as e:
 #         await ctx.send(f"An error occurred while loading the {cog_name} cog: {str(e)}")
+class MyModal(discord.ui.Modal):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
+        self.add_item(discord.ui.InputText(label="Short Input"))
+        self.add_item(discord.ui.InputText(label="Long Input", style=discord.InputTextStyle.long))
+
+    async def callback(self, interaction: discord.Interaction):
+        embed = discord.Embed(title="Modal Results")
+        embed.add_field(name="Short Input", value=self.children[0].value)
+        embed.add_field(name="Long Input", value=self.children[1].value)
+        await interaction.response.send_message(embeds=[embed])
+
+@bot.slash_command()
+async def send_modal(ctx):
+    Modal = MyModal(title="Modal via Command")
+    await ctx.interaction.response.send_modal(Modal)
+    
 if __name__ == '__main__':
-    cog_list0 = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
-    cog_list=['cogs.genshin']
+    cog_list = ['cogs.music', 'cogs.help', 'cogs.translator', 'cogs.waifu', 'cogs.animesearch', 'cogs.genshin', 'cogs.honkai']
+    cog_list1=['cogs.honkai']
     for cog in cog_list:
         bot.load_extension(cog)
     bot.add_cog(UtilityMenu(bot, VERSION))
