@@ -16,14 +16,10 @@ from discord import option
 Hoyolab_Salt = requests.get("https://gist.githubusercontent.com/k3rokami/29dad087d40a65cbef3b08ad3ebb599a/raw/f6ce67737864e8a239bbb1a60584a59dcc10339d/Hoyolab.txt")
 SALT = str(Hoyolab_Salt.text).encode()
 
-now_utc = datetime.datetime.utcnow()
-
-# Convert to Singapore time
-sgt = pytz.timezone('Asia/Singapore')
-now_sgt = now_utc.astimezone(sgt)
-
+singapore_tz = pytz.timezone("Asia/Singapore")
+now = datetime.datetime.now(singapore_tz)
 # Format the time as a string
-sgt_time = now_sgt.strftime('%m/%d/%Y %I:%M %p')
+sgt_time = now.strftime("%m/%d/%Y %I:%M %p")
 
 def encrypt(plaintext, key):
     salt = hashlib.sha256(SALT + str(key).encode()).digest()
@@ -54,7 +50,7 @@ class GenshinImpact(commands.Cog):
                 title="Genshin Hoyolab Daily Check-In",
                 color=0xFFB6C1,
             )
-            embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+            embed.add_field(name="⚠️ Login first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
             embed.set_footer(
                 text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
@@ -99,7 +95,7 @@ class GenshinImpact(commands.Cog):
             embed_jp.add_field(name="✅ デイリーチェックイン", value="今日はすでにチェックインしました！", inline=False)
             embed_jp.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
             embed_jp.set_footer(
-                text=f"{ctx.interaction.user.name} さんからのリクエスト · {datetime.datetime.now().strftime('%Y/%m/%d %H:%M')}",
+                text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed_jp.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
@@ -115,7 +111,7 @@ class GenshinImpact(commands.Cog):
                     title="Genshin Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+                embed.add_field(name="⚠️ Login first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                 embed.set_footer(
                     text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
@@ -129,7 +125,7 @@ class GenshinImpact(commands.Cog):
                 )
                 embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした\n`/genshin cookies`を使用してクッキーを設定してください", inline=False)
                 embed_jp.set_footer(
-                    text=f"{ctx.interaction.user.name} さんからのリクエスト · {datetime.datetime.now().strftime('%Y/%m/%d %H:%M')}",
+                    text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
                 embed_jp.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
@@ -157,7 +153,7 @@ class GenshinImpact(commands.Cog):
                 )
                 embed_jp.add_field(name="❌ エラー", value=f"{e}",inline=False)
                 embed_jp.set_footer(
-                    text=f"{ctx.interaction.user.name} さんからのリクエスト · {datetime.datetime.now().strftime('%Y/%m/%d %H:%M')}",
+                    text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
                 embed_jp.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
@@ -169,14 +165,18 @@ class GenshinImpact(commands.Cog):
         else:
             # print(f"Claimed {reward.amount}x {reward.name}")
             signed_in, claimed_rewards = await client.get_reward_info()
-            embed = discord.Embed(
-                title="Genshin Hoyolab Daily Check-In",
-                color=0xFFB6C1,
-            )
             if language == "ja-jp":
+                embed = discord.Embed(
+                    title="Genshin Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
                 embed.add_field(name="✅ 受け取り成功", value=f"{reward.name}を{reward.amount}個受け取りました", inline=False)
                 embed.add_field(name="今月の受け取り済み報酬の合計:", value=claimed_rewards)
             else:
+                embed = discord.Embed(
+                    title="Genshin Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
                 embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
                 embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
             embed.set_footer(

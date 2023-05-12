@@ -19,7 +19,6 @@ import json
 
 from cogs.utility import UtilityMenu
 from cogs.genshin import decrypt
-from cogs.hoyolab import Hoyolab_Cookies
 from urllib.request import getproxies
 from discord.errors import NotFound
 from discord.ext import commands, pages, tasks
@@ -29,7 +28,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.8"
+VERSION = "v1.2.9"
 
 load_dotenv()
 
@@ -218,6 +217,7 @@ async def on_message(message):
 async def hoyolab_daily():
     now = datetime.datetime.now(singapore_tz)
     current_time = now.time().strftime("%H:%M:%S")
+    sgt_time = now.strftime("%m/%d/%Y %I:%M %p")
     if current_time == "00:10:00":
         with open("Hoyolab_Cookies.json", 'r') as f:
             Hoyolab_Cookies = json.load(f)
@@ -260,12 +260,32 @@ async def hoyolab_daily():
                     embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
                     embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                     embed.set_footer(
-                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        text=f"Requested by {user.display_name} · {sgt_time}",
                         icon_url=user.display_avatar,
                     )
                     embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
-                    await channel.send(embed=embed)
-                    # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
+                    
+                    # Japanese version of the embed
+                    embed_jp = discord.Embed(
+                        title="原神 今日のログインボーナス",
+                        color=0xFFB6C1,
+                    )
+                    embed_jp.add_field(name="✅ デイリーチェックイン", value="今日はすでにチェックインしました！", inline=False)
+                    embed_jp.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
+                    embed_jp.set_footer(
+                        text=f"{user.display_name} さんからのリクエスト · {sgt_time}",
+                        icon_url=user.display_avatar,
+                    )
+                    embed_jp.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
+                    
+                    if language == "ja-jp":
+                        await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                    else:
+                        await ctx.response.send_message(embed=embed, ephemeral=False)
+                    embed = discord.Embed(
+                        title="Genshin Hoyolab Daily Check-In",
+                        color=0xFFB6C1,
+                    )
                 except Exception as e:
                     if not genshin.AccountNotFound:
                         claimed_rewards = await client.get_reward_info()
@@ -275,11 +295,27 @@ async def hoyolab_daily():
                         )
                         embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                         embed.set_footer(
-                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                            icon_url=user.display_avatar,
+                            text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
+                            icon_url=ctx.interaction.user.display_avatar.url,
                         )
                         embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
-                        await channel.send(embed=embed)
+                        
+                        # Japanese version of the embed
+                        embed_jp = discord.Embed(
+                            title="原神 今日のログインボーナス",
+                            color=0xFFB6C1,
+                        )
+                        embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした\n`/genshin cookies`を使用してクッキーを設定してください", inline=False)
+                        embed_jp.set_footer(
+                            text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
+                            icon_url=ctx.interaction.user.display_avatar.url,
+                        )
+                        embed_jp.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                        
+                        if language == "ja-jp":
+                            await channel.send(embed=embed__jp)
+                        else:
+                            await channel.send(embed=embed)
                     else:
                         embed = discord.Embed(
                             title="Genshin Hoyolab Daily Check-In",
@@ -287,22 +323,45 @@ async def hoyolab_daily():
                         )
                         embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                         embed.set_footer(
-                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                            icon_url=user.display_avatar,
+                            text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
+                            icon_url=ctx.interaction.user.display_avatar.url,
                         )
                         embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
-                        await channel.send(embed=embed)
+                        # Japanese version of the embed
+                        embed_jp = discord.Embed(
+                            title="原神 今日のログインボーナス",
+                            color=0xFFB6C1,
+                        )
+                        embed_jp.add_field(name="❌ エラー", value=f"{e}",inline=False)
+                        embed_jp.set_footer(
+                            text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
+                            icon_url=ctx.interaction.user.display_avatar.url,
+                        )
+                        embed_jp.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
+                        
+                        if language == "ja-jp":
+                            await channel.send(embed=embed__jp)
+                        else:
+                            await channel.send(embed=embed)
                 else:
                     # print(f"Claimed {reward.amount}x {reward.name}")
                     signed_in, claimed_rewards = await client.get_reward_info()
-                    embed = discord.Embed(
-                        title="Genshin Hoyolab Daily Check-In",
-                        color=0xFFB6C1,
-                    )
-                    embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
-                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                    if language == "ja-jp":
+                        embed = discord.Embed(
+                            title="原神 今日のログインボーナス",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="✅ 受け取り成功", value=f"{reward.name}を{reward.amount}個受け取りました", inline=False)
+                        embed.add_field(name="今月の受け取り済み報酬の合計:", value=claimed_rewards)
+                    else:
+                        embed = discord.Embed(
+                            title="Genshin Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                        embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
+                        embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                     embed.set_footer(
-                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        text=f"Requested by {user.display_name} · {sgt_time}",
                         icon_url=user.display_avatar,
                     )
                     embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
@@ -316,59 +375,92 @@ async def hoyolab_daily():
                 except genshin.AlreadyClaimed:
                     # print("Daily reward already claimed")
                     signed_in, claimed_rewards = await client.get_reward_info()
-                    embed = discord.Embed(
-                        title="Honkai Hoyolab Daily Check-In",
-                        color=0xFFB6C1,
-                    )
-                    embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
-                    embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
-                    embed.set_footer(
-                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                        icon_url=user.display_avatar,
-                    )
-                    embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
-                    await channel.send(embed=embed)
-                    # print(f"Signed in: {signed_in} | Total claimed rewards this month: {claimed_rewards}")
-                except Exception as e:
-                    if not genshin.AccountNotFound:
-                        claimed_rewards = await client.get_reward_info()
-                        embed = discord.Embed(
-                            title="Honkai Hoyolab Daily Check-In",
+                    if language == "ja-jp":
+                        japanese_embed = discord.Embed(
+                            title="崩壊3rd 今日のログインボーナス",
                             color=0xFFB6C1,
                         )
-                        embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
-                        embed.set_footer(
-                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        japanese_embed.add_field(name="✅ デイリーチェックイン", value="今日はすでにチェックインしました！", inline=False)
+                        japanese_embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
+                        japanese_embed.set_footer(
+                            text=f"{user.display_name} さんによってリクエストされました · {sgt_time}",
                             icon_url=user.display_avatar,
                         )
-                        embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
-                        await channel.send(embed=embed)
+                        japanese_embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image_ja.png")
+                        embed = japanese_embed
                     else:
                         embed = discord.Embed(
                             title="Honkai Hoyolab Daily Check-In",
                             color=0xFFB6C1,
                         )
-                        embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                        embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
+                        embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                         embed.set_footer(
-                            text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                            text=f"Requested by {user.display_name} · {sgt_time}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
+                    await channel.send(embed=embed)
+                except Exception as e:
+                    if not genshin.AccountNotFound:
+                        claimed_rewards = await client.get_reward_info()
+                        if language == "ja-jp":
+                            embed = discord.Embed(
+                            title="崩壊3rd 今日のログインボーナス",
+                            color=0xFFB6C1,
+                        )
+                            embed.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした。\n`/honkai cookies`を使用してクッキーを設定してください。", inline=False)
+                        else:
+                            embed = discord.Embed(
+                            title="Honkai Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                            embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {sgt_time}",
+                            icon_url=user.display_avatar,
+                        )
+                        embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
+                        await channel.send(embed=embed)
+                    else:
+                        if language == "ja-jp":
+                            embed = discord.Embed(
+                            title="崩壊3rd 今日のログインボーナス",
+                            color=0xFFB6C1,
+                        )
+                            embed.add_field(name="❌ エラー", value=f"{e}",inline=False)
+                        else:
+                            embed = discord.Embed(
+                            title="Honkai Hoyolab Daily Check-In",
+                            color=0xFFB6C1,
+                        )
+                            embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                        embed.set_footer(
+                            text=f"Requested by {user.display_name} · {sgt_time}",
                             icon_url=user.display_avatar,
                         )
                         embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                         await channel.send(embed=embed)
                 else:
-                    # print(f"Claimed {reward.amount}x {reward.name}")
                     signed_in, claimed_rewards = await client.get_reward_info()
                     embed = discord.Embed(
                         title="Honkai Hoyolab Daily Check-In",
                         color=0xFFB6C1,
                     )
-                    embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
+                    embed.add_field(name="✅ Collected successfully", value=f"Collected: {reward.amount}x {reward.name}", inline=False)
                     embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
                     embed.set_footer(
-                        text=f"Requested by {user.display_name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                        text=f"Requested by {user.display_name} · {sgt_time}",
                         icon_url=user.display_avatar,
                     )
-                    embed.set_thumbnail(url="https://i.ibb.co/9VQWfDG/Qiqi-1.png")
+                    embed.set_thumbnail(url="https://i.ibb.co/9cgyyTG/image.png")
+                    if language == "ja-jp":
+                        embed = discord.Embed(
+                        title="崩壊3rd 今日のログインボーナス",
+                        color=0xFFB6C1,
+                    )
+                        embed.add_field(name="✅ 取得成功", value=f"取得：{reward.amount}x {reward.name}", inline=False)
+                        embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
                     await channel.send(embed=embed)
             else:
                 pass
