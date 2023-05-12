@@ -274,22 +274,13 @@ class Music(commands.Cog):
 
     
     async def skip_to_next_track(self, guild, ctx):
-        # Get the guild's audio player
-        player = players.get(guild.id)
-        if not player:
-            return
-        # Stop playing the current track
-        player.stop()
-        # Check if the user has already voted to skip
-        if ctx.author.id in self.skip_votes.get(guild.id, []):
-            embed = discord.Embed(title="❌ Error", description="You have already voted to skip this track", color=0xFF0000)
+        if guild.id not in queues or len(queues[guild.id]) == 0:
+            embed = discord.Embed(title="❌ Error", description="There are no songs in the queue.", color=0xFF0000)
             await ctx.send(embed=embed)
             return
-        # Add the user's ID to the list of skip votes for this guild
-        if guild.id not in self.skip_votes:
-            self.skip_votes[guild.id] = []
-        self.skip_votes[guild.id].append(ctx.author.id)
-        # Load the next track in the queue
+        if guild.voice_client.is_playing():
+            guild.voice_client.stop()
+        queues[guild.id].pop(0) # remove the skipped track from the queue
         await self.load_next_track(guild, ctx)
 
     @music.command()
@@ -331,7 +322,6 @@ class Music(commands.Cog):
                 if len(queues[guild.id]) > 0:
                     self.bot.loop.create_task(self.load_next_track(guild, ctx))
 
-         
     @music.command()
     async def queue(self, ctx):
         if ctx.guild.id not in queues or len(queues[ctx.guild.id]) == 0:

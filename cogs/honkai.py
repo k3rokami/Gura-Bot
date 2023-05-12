@@ -3,10 +3,10 @@ import discord
 import datetime
 import requests
 import json
+import pytz
 
 from typing import Optional
-from cogs.genshin import encrypt,decrypt
-from cogs.hoyolab import Hoyolab_Cookies
+from cogs.genshin import encrypt,decrypt,sgt_time
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
 from discord import option
@@ -53,17 +53,31 @@ class HonkaiImpact(commands.Cog):
         except genshin.AlreadyClaimed:
             # print("Daily reward already claimed")
             signed_in, claimed_rewards = await client.get_reward_info()
-            embed = discord.Embed(
-                title="Honkai Hoyolab Daily Check-In",
-                color=0xFFB6C1,
-            )
-            embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
-            embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
-            embed.set_footer(
-                text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
-                icon_url=ctx.interaction.user.display_avatar.url,
-            )
-            embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
+            if language == "ja-jp":
+                japanese_embed = discord.Embed(
+                    title="Honkai Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
+                japanese_embed.add_field(name="✅ デイリーチェックイン", value="今日はすでにチェックインしました！", inline=False)
+                japanese_embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
+                japanese_embed.set_footer(
+                    text=f"{ctx.interaction.user.name} さんによってリクエストされました · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    icon_url=ctx.interaction.user.display_avatar.url,
+                )
+                japanese_embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image_ja.png")
+                embed = japanese_embed
+            else:
+                embed = discord.Embed(
+                    title="Honkai Hoyolab Daily Check-In",
+                    color=0xFFB6C1,
+                )
+                embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
+                embed.add_field(name="Total claimed rewards this month:", value=claimed_rewards)
+                embed.set_footer(
+                    text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+                    icon_url=ctx.interaction.user.display_avatar.url,
+                )
+                embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
             await ctx.response.send_message(embed=embed, ephemeral=False)
         except Exception as e:
             if not genshin.AccountNotFound:
@@ -72,7 +86,10 @@ class HonkaiImpact(commands.Cog):
                     title="Honkai Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
+                if language == "ja-jp":
+                    embed.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした。\n`/honkai cookies`を使用してクッキーを設定してください。", inline=False)
+                else:
+                    embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/honkai cookies` to set your cookies", inline=False)
                 embed.set_footer(
                     text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=ctx.interaction.user.display_avatar.url,
@@ -84,7 +101,10 @@ class HonkaiImpact(commands.Cog):
                     title="Honkai Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="❌ Error", value=f"{e}",inline=False)
+                if language == "ja-jp":
+                    embed.add_field(name="❌ エラー", value=f"{e}",inline=False)
+                else:
+                    embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                 embed.set_footer(
                     text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
                     icon_url=ctx.interaction.user.display_avatar.url,
@@ -105,6 +125,9 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/9cgyyTG/image.png")
+            if language == "ja-jp":
+                embed.add_field(name="✅ 取得成功", value=f"取得：{reward.amount}x {reward.name}", inline=False)
+                embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
             await ctx.response.send_message(embed=embed, ephemeral=False)
             
     @honkai.command(name="cookies", description="Set cookies for Honkai Impact API requests")
@@ -162,8 +185,14 @@ class HonkaiImpact(commands.Cog):
             description="Cookies set successfully!",
             color=0xFFB6C1,
         )
+        if language == "日本語":
+            embed = discord.Embed(
+                title="✅ Hoyolab クッキー",
+                description="クッキーが正常に設定されました！",
+                color=0xFFB6C1,
+            )
         embed.set_footer(
-            text=f"Requested by {ctx.interaction.user.name} · {datetime.datetime.now().strftime('%m/%d/%Y %I:%M %p')}",
+            text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
             icon_url=ctx.interaction.user.display_avatar.url,
         )
         embed.set_thumbnail(url="https://i.ibb.co/CtfZ02m/image.png")
