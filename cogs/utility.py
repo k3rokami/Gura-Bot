@@ -120,7 +120,7 @@ class UtilityMenu(commands.Cog):
             bot_messages = [
                 msg
                 for msg in await ctx.channel.history(limit=None).flatten()
-                if msg.author == self.bot.user
+                if msg.author == self.bot.user or isinstance(msg, discord.Message) and msg.embeds and msg.embeds[0].author and msg.embeds[0].author.name == self.bot.user.name
             ]
             # Delete the specified number of messages, defaulting to 1 if no count was provided
             count = min(count, len(bot_messages))
@@ -133,7 +133,6 @@ class UtilityMenu(commands.Cog):
             await ctx.respond(f"Deleted {count} bot message(s).", ephemeral=True)
         else:
             await ctx.respond("This command can only be used in DMs.", ephemeral=True)
-
 
     @utility.command(name="user", description="Get member's Information")
     async def user(self, interaction: discord.Interaction, member: discord.Member = None):
