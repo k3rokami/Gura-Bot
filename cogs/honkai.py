@@ -34,7 +34,10 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/vxgLMKG/image.png")
-            await ctx.response.send_message(embed=embed, ephemeral=False)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')
@@ -78,7 +81,10 @@ class HonkaiImpact(commands.Cog):
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
                 embed.set_thumbnail(url="https://i.ibb.co/84BtQKB/image.png")
-            await ctx.response.send_message(embed=embed, ephemeral=False)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
         except Exception as e:
             if not genshin.AccountNotFound:
                 claimed_rewards = await client.get_reward_info()
@@ -118,7 +124,10 @@ class HonkaiImpact(commands.Cog):
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
                 embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+            try:
                 await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
         else:
             # print(f"Claimed {reward.amount}x {reward.name}")
             signed_in, claimed_rewards = await client.get_reward_info()
@@ -140,7 +149,11 @@ class HonkaiImpact(commands.Cog):
             )
                 embed.add_field(name="✅ 取得成功", value=f"取得：{reward.amount}x {reward.name}", inline=False)
                 embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
-            await ctx.response.send_message(embed=embed, ephemeral=False)
+                embed.set_thumbnail(url="https://i.ibb.co/9cgyyTG/image.png")
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
     @honkai.command(name="cookies", description="Set cookies for Honkai Impact API requests")
     @option("language",
@@ -208,7 +221,10 @@ class HonkaiImpact(commands.Cog):
             icon_url=ctx.interaction.user.display_avatar.url,
         )
         embed.set_thumbnail(url="https://i.ibb.co/CtfZ02m/image.png")
-        await ctx.response.send_message(embed=embed, ephemeral=False)
+        try:
+            await ctx.response.send_message(embed=embed, ephemeral=False)
+        except discord.errors.NotFound:
+            await ctx.send(embed=embed)
     
     if requests.get("https://honkai-redeem-code.vercel.app/codes").status_code == 200:
         data = requests.get("https://honkai-redeem-code.vercel.app/codes").json()

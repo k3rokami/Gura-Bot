@@ -101,9 +101,15 @@ class GenshinImpact(commands.Cog):
             embed_jp.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
             
             if language == "ja-jp":
-                await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                try:
+                    await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                except discord.errors.NotFound:
+                    await ctx.send(embed=embed_jp)
             else:
-                await ctx.response.send_message(embed=embed, ephemeral=False)
+                try:
+                    await ctx.response.send_message(embed=embed, ephemeral=False)
+                except discord.errors.NotFound:
+                    await ctx.send(embed=embed)
         except Exception as e:
             if not genshin.AccountNotFound:
                 claimed_rewards = await client.get_reward_info()
@@ -131,9 +137,15 @@ class GenshinImpact(commands.Cog):
                 embed_jp.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                 
                 if language == "ja-jp":
-                    await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                    try:
+                        await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                    except discord.errors.NotFound:
+                        await ctx.send(embed=embed_jp)
                 else:
-                    await ctx.response.send_message(embed=embed, ephemeral=False)
+                    try:
+                        await ctx.response.send_message(embed=embed, ephemeral=False)
+                    except discord.errors.NotFound:
+                        await ctx.send(embed=embed)
             else:
                 embed = discord.Embed(
                     title="Genshin Hoyolab Daily Check-In",
@@ -159,9 +171,15 @@ class GenshinImpact(commands.Cog):
                 embed_jp.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
                 
                 if language == "ja-jp":
-                    await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                    try:
+                        await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                    except discord.errors.NotFound:
+                        await ctx.send(embed=embed_jp)
                 else:
-                    await ctx.response.send_message(embed=embed, ephemeral=False)
+                    try:
+                        await ctx.response.send_message(embed=embed, ephemeral=False)
+                    except discord.errors.NotFound:
+                        await ctx.send(embed=embed)
         else:
             # print(f"Claimed {reward.amount}x {reward.name}")
             signed_in, claimed_rewards = await client.get_reward_info()
@@ -184,7 +202,10 @@ class GenshinImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
-            await ctx.response.send_message(embed=embed, ephemeral=False)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
     
     @genshin.command(name="cookies", description="Set cookies for Genshin Impact API requests")

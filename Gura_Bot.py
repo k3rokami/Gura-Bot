@@ -28,7 +28,7 @@ from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
 
-VERSION = "v1.2.9"
+VERSION = "v1.3.0"
 
 load_dotenv()
 
@@ -104,15 +104,16 @@ async def on_message(message):
 
         # split the output into chunks of 1900 characters and send each chunk separately
         for chunk in [output[i:i+1900] for i in range(0, len(output), 1900)]:
+            escaped_chunk = discord.utils.escape_mentions(discord.utils.escape_markdown(chunk))
             if isinstance(message.channel, discord.DMChannel):
-                await message.channel.send(f'```{chunk}```')
+                await message.channel.send(f'```ansi\n{escaped_chunk}```')
                 await asyncio.sleep(1)
             elif isinstance(message.channel, discord.GroupChannel):
-                await message.channel.send(f'```{chunk}```')
+                await message.channel.send(f'```ansi\n{escaped_chunk}```')
                 await asyncio.sleep(1)
             else:
                 channel = bot.get_channel(message.channel.id)
-                await channel.send(f'```{chunk}```')
+                await channel.send(f'```ansi\n{escaped_chunk}```')
                 await asyncio.sleep(1)
 
         if output.startswith('Traceback'):
@@ -213,12 +214,14 @@ async def on_message(message):
 #         # Sleep for 24 hours
 #         await asyncio.sleep(24 * 60 * 60)
 
-@tasks.loop(seconds=1)
+@tasks.loop(seconds=60)
 async def hoyolab_daily():
     now = datetime.datetime.now(singapore_tz)
-    current_time = now.time().strftime("%H:%M:%S")
+    current_time = now.time()
     sgt_time = now.strftime("%m/%d/%Y %I:%M %p")
-    if current_time == "00:10:00":
+    start_time = datetime.time(hour=0, minute=0, second=0)
+    end_time = datetime.time(hour=0, minute=20, second=0)
+    if start_time <= current_time <= end_time:
         with open("Hoyolab_Cookies.json", 'r') as f:
             Hoyolab_Cookies = json.load(f)
         for accounts in Hoyolab_Cookies.keys():
@@ -295,8 +298,8 @@ async def hoyolab_daily():
                         )
                         embed.add_field(name="⚠️ Login in first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
                         embed.set_footer(
-                            text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
-                            icon_url=ctx.interaction.user.display_avatar.url,
+                            text=f"Requested by {user.display_name} · {sgt_time}",
+                            icon_url=user.display_avatar,
                         )
                         embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                         
@@ -307,8 +310,8 @@ async def hoyolab_daily():
                         )
                         embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした\n`/genshin cookies`を使用してクッキーを設定してください", inline=False)
                         embed_jp.set_footer(
-                            text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
-                            icon_url=ctx.interaction.user.display_avatar.url,
+                            text=f"{user.display_name} さんからのリクエスト · {sgt_time}",
+                            icon_url=user.display_avatar,
                         )
                         embed_jp.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
                         
@@ -323,8 +326,8 @@ async def hoyolab_daily():
                         )
                         embed.add_field(name="❌ Error", value=f"{e}",inline=False)
                         embed.set_footer(
-                            text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
-                            icon_url=ctx.interaction.user.display_avatar.url,
+                            text=f"Requested by {user.display_name} · {sgt_time}",
+                            icon_url=user.display_avatar,
                         )
                         embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
                         # Japanese version of the embed
@@ -334,13 +337,13 @@ async def hoyolab_daily():
                         )
                         embed_jp.add_field(name="❌ エラー", value=f"{e}",inline=False)
                         embed_jp.set_footer(
-                            text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
-                            icon_url=ctx.interaction.user.display_avatar.url,
+                            text=f"{user.display_name} さんからのリクエスト · {sgt_time}",
+                            icon_url=user.display_avatar,
                         )
                         embed_jp.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
                         
                         if language == "ja-jp":
-                            await channel.send(embed=embed__jp)
+                            await channel.send(embed=embed_jp)
                         else:
                             await channel.send(embed=embed)
                 else:
@@ -461,11 +464,10 @@ async def hoyolab_daily():
                     )
                         embed.add_field(name="✅ 取得成功", value=f"取得：{reward.amount}x {reward.name}", inline=False)
                         embed.add_field(name="今月の獲得報酬の合計：", value=claimed_rewards)
+                        embed.set_thumbnail(url="https://i.ibb.co/9cgyyTG/image.png")
                     await channel.send(embed=embed)
             else:
                 pass
-        # Sleep for 24 hours
-        await asyncio.sleep(24 * 60 * 60)
         
 # @tasks.loop(seconds=1)
 # async def honkai_daily():
