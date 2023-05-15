@@ -356,6 +356,7 @@ async def hoyolab_daily():
                         )
                         embed.add_field(name="✅ 受け取り成功", value=f"{reward.name}を{reward.amount}個受け取りました", inline=False)
                         embed.add_field(name="今月の受け取り済み報酬の合計:", value=claimed_rewards)
+                        embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
                     else:
                         embed = discord.Embed(
                             title="Genshin Hoyolab Daily Check-In",
