@@ -341,5 +341,23 @@ class UtilityMenu(commands.Cog):
         )
         await interaction.response.send_message(embed=embed)
         
+    @utility.command(name="pfp", description="Change bot's pfp using an image URL")
+    @commands.is_owner()
+    async def pfp(ctx, attachment_url=None):
+        if attachment_url is None and not ctx.message.attachments:
+            return await ctx.send(
+                f"Please provide an Image URL or attach an Image for this command"
+            )
+        else:
+            await ctx.send(
+                f"Profile picture changed successfully"
+            )
+        if attachment_url is None:
+            attachment_url = ctx.message.attachments[0].url
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(attachment_url) as response:
+                await bot.user.edit(avatar=await response.read())
+        
 def setup(bot):
     bot.add_cog(UtilityMenu(bot))

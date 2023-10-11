@@ -202,7 +202,7 @@ class HonkaiImpact(commands.Cog):
             Hoyolab_Cookies[str(ctx.author.id)]["language"]  = lang
         else:
             # Create a new entry
-            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False}
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False, "starrail_auto": False}
         with open('Hoyolab_Cookies.json', 'w') as f:
             json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(
@@ -263,7 +263,10 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/QcsQ6K0/Klee-1.png")
-            await ctx.send(embed=embed)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
         except genshin.RedemptionInvalid:
             embed = discord.Embed(
@@ -276,7 +279,10 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/F46d03S/image.png")
-            await ctx.send(embed=embed)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
         except genshin.RedemptionCooldown:
             embed = discord.Embed(
@@ -289,7 +295,10 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/YWKvYvp/Klee-2.png")
-            await ctx.send(embed=embed)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
         except genshin.RedemptionClaimed:
             embed = discord.Embed(
@@ -302,7 +311,10 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/mFRNHjT/image.png")
-            await ctx.send(embed=embed)
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
             
         except Exception as e:
             embed = discord.Embed(
@@ -315,8 +327,11 @@ class HonkaiImpact(commands.Cog):
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
             embed.set_thumbnail(url="https://i.ibb.co/hc0KzPX/image.png")
-            await ctx.send(embed=embed)
-            print(f"An exception occurred: {e}")
+            try:
+                await ctx.response.send_message(embed=embed, ephemeral=False)
+            except discord.errors.NotFound:
+                await ctx.send(embed=embed)
+            # print(f"An exception occurred: {e}")
             
 def setup(bot):
     bot.add_cog(HonkaiImpact(bot))
