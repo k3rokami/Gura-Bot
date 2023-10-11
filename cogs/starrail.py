@@ -33,13 +33,13 @@ def decrypt(ciphertext, key):
     f = Fernet(base64.urlsafe_b64encode(kdf))
     return f.decrypt(ciphertext.encode()).decode()
 
-class GenshinImpact(commands.Cog):
+class HonkaiStarRail(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    genshin = SlashCommandGroup("genshin", "Various Hoyolab Genshin Commands")
+    starrail = SlashCommandGroup("starrail", "Various Hoyolab Star Rail Commands")
     
-    @genshin.command(name="daily", description="Receive Hoyolab daily check-in reward")
+    @starrail.command(name="daily", description="Receive Hoyolab daily check-in reward")
     @option("--auto-claim", type=bool, default=False, description="Automatically claim the daily reward")
     async def daily(self, ctx, auto_claim: Optional[bool] = False):
         with open("Hoyolab_Cookies.json", 'r') as f:
@@ -47,26 +47,47 @@ class GenshinImpact(commands.Cog):
             cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
             embed = discord.Embed(
-                title="Genshin Hoyolab Daily Check-In",
+                title="Star Rail Hoyolab Daily Check-In",
                 color=0xFFB6C1,
             )
-            embed.add_field(name="⚠️ Login first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+            embed.add_field(name="⚠️ Login first", value="Could not find a Star Rail account linked to your Discord ID\nPlease use `/starrail cookies` to set your cookies", inline=False)
             embed.set_footer(
                 text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
-            await ctx.response.send_message(embed=embed, ephemeral=False)
+            embed.set_thumbnail(url="https://i.ibb.co/Pr9gDX2/Bailu-2.png")
+            # Japanese version of the embed
+            embed_jp = discord.Embed(
+                title="スターレイル Hoyolab デイリーチェックイン",
+                color=0xFFB6C1,
+            )
+            embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされたスターレイルアカウントが見つかりませんでした。\n`/starrail cookies` を使用してクッキーを設定してください。", inline=False)
+            embed_jp.set_footer(
+                text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
+                icon_url=ctx.interaction.user.display_avatar.url,
+            )
+            embed_jp.set_thumbnail(url="https://i.ibb.co/Pr9gDX2/Bailu-2.png")
+            
+            if language == "ja-jp":
+                try:
+                    await ctx.response.send_message(embed=embed_jp, ephemeral=False)
+                except discord.errors.NotFound:
+                    await ctx.send(embed=embed_jp)
+            else:
+                try:
+                    await ctx.response.send_message(embed=embed, ephemeral=False)
+                except discord.errors.NotFound:
+                    await ctx.send(embed=embed)
             return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')
         ltuid = decrypt(hashed_ltuid, ctx.author.id)
         ltoken = decrypt(hashed_ltoken, ctx.author.id)
         language = cookies.get('language')
-        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},lang=language,game=genshin.Game.GENSHIN)
+        client = genshin.Client({"ltuid": ltuid, "ltoken": ltoken},lang=language,game=genshin.Game.STARRAIL)
         try:
             if auto_claim:
-                Hoyolab_Cookies[str(ctx.author.id)]['genshin_auto'] = True
+                Hoyolab_Cookies[str(ctx.author.id)]['starrail_auto'] = True
                 with open("Hoyolab_Cookies.json", 'w') as f:
                     json.dump(Hoyolab_Cookies, f, indent=4)
                 reward = await client.claim_daily_reward()
@@ -76,7 +97,7 @@ class GenshinImpact(commands.Cog):
             # print("Daily reward already claimed")
             signed_in, claimed_rewards = await client.get_reward_info()
             embed = discord.Embed(
-                title="Genshin Hoyolab Daily Check-In",
+                title="Star Rail Hoyolab Daily Check-In",
                 color=0xFFB6C1,
             )
             embed.add_field(name="✅ Daily Check-In", value="Already checked in today!", inline=False)
@@ -85,11 +106,11 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            embed.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
+            embed.set_thumbnail(url="https://i.ibb.co/QXk0qpq/Bailu.png")
             
             # Japanese version of the embed
             embed_jp = discord.Embed(
-                title="原神 今日のログインボーナス",
+                title="スターレイル 今日のログインボーナス",
                 color=0xFFB6C1,
             )
             embed_jp.add_field(name="✅ デイリーチェックイン", value="今日はすでにチェックインしました！", inline=False)
@@ -98,7 +119,7 @@ class GenshinImpact(commands.Cog):
                 text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            embed_jp.set_thumbnail(url="https://i.ibb.co/ZXL3b1R/Paimon-9.png")
+            embed_jp.set_thumbnail(url="https://i.ibb.co/QXk0qpq/Bailu.png")
             
             if language == "ja-jp":
                 try:
@@ -114,27 +135,27 @@ class GenshinImpact(commands.Cog):
             if not genshin.AccountNotFound:
                 claimed_rewards = await client.get_reward_info()
                 embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
+                    title="Star Rail Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
-                embed.add_field(name="⚠️ Login first", value="Could not find a Genshin account linked to your Discord ID\nPlease use `/genshin cookies` to set your cookies", inline=False)
+                embed.add_field(name="⚠️ Login first", value="Could not find a Star Rail account linked to your Discord ID\nPlease use `/starrail cookies` to set your cookies", inline=False)
                 embed.set_footer(
                     text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                embed.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                embed.set_thumbnail(url="https://i.ibb.co/4FQX5VG/March-7th-11.png")
                 
                 # Japanese version of the embed
                 embed_jp = discord.Embed(
-                    title="原神 今日のログインボーナス",
+                    title="スターレイル 今日のログインボーナス",
                     color=0xFFB6C1,
                 )
-                embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされた原神アカウントが見つかりませんでした\n`/genshin cookies`を使用してクッキーを設定してください", inline=False)
+                embed_jp.add_field(name="⚠️ ログインしてください", value="あなたのDiscord IDにリンクされたスターレイルアカウントが見つかりませんでした\n`/starrail cookies`を使用してクッキーを設定してください", inline=False)
                 embed_jp.set_footer(
                     text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                embed_jp.set_thumbnail(url="https://i.ibb.co/ZMhnKcC/Paimon-12.png")
+                embed_jp.set_thumbnail(url="https://i.ibb.co/4FQX5VG/March-7th-11.png")
                 
                 if language == "ja-jp":
                     try:
@@ -148,7 +169,7 @@ class GenshinImpact(commands.Cog):
                         await ctx.send(embed=embed)
             else:
                 embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
+                    title="Star Rail Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
                 embed.add_field(name="❌ Error", value=f"{e}",inline=False)
@@ -156,11 +177,11 @@ class GenshinImpact(commands.Cog):
                     text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                embed.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
+                embed.set_thumbnail(url="https://i.ibb.co/JFDjq8Y/Pom-Pom-8.png")
                 
                 # Japanese version of the embed
                 embed_jp = discord.Embed(
-                    title="原神 今日のログインボーナス",
+                    title="スターレイル 今日のログインボーナス",
                     color=0xFFB6C1,
                 )
                 embed_jp.add_field(name="❌ エラー", value=f"{e}",inline=False)
@@ -168,7 +189,7 @@ class GenshinImpact(commands.Cog):
                     text=f"{ctx.interaction.user.name} さんからのリクエスト · {sgt_time}",
                     icon_url=ctx.interaction.user.display_avatar.url,
                 )
-                embed_jp.set_thumbnail(url="https://i.ibb.co/3fjXfXx/Hu-Tao-3.png")
+                embed_jp.set_thumbnail(url="https://i.ibb.co/JFDjq8Y/Pom-Pom-8.png")
                 
                 if language == "ja-jp":
                     try:
@@ -185,14 +206,14 @@ class GenshinImpact(commands.Cog):
             signed_in, claimed_rewards = await client.get_reward_info()
             if language == "ja-jp":
                 embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
+                    title="スターレイル Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
                 embed.add_field(name="✅ 受け取り成功", value=f"{reward.name}を{reward.amount}個受け取りました", inline=False)
                 embed.add_field(name="今月の受け取り済み報酬の合計:", value=claimed_rewards)
             else:
                 embed = discord.Embed(
-                    title="Genshin Hoyolab Daily Check-In",
+                    title="Star Rail Hoyolab Daily Check-In",
                     color=0xFFB6C1,
                 )
                 embed.add_field(name="✅ Collected successfully", value=f"Collected {reward.amount}x {reward.name}", inline=False)
@@ -201,14 +222,14 @@ class GenshinImpact(commands.Cog):
                 text=f"Requested by {ctx.interaction.user.name} · {sgt_time}",
                 icon_url=ctx.interaction.user.display_avatar.url,
             )
-            embed.set_thumbnail(url="https://i.ibb.co/b5CDJqL/Qiqi-2.png")
+            embed.set_thumbnail(url="https://i.ibb.co/cgdm4n8/Pom-Pom-7.png")
             try:
                 await ctx.response.send_message(embed=embed, ephemeral=False)
             except discord.errors.NotFound:
                 await ctx.send(embed=embed)
             
     
-    @genshin.command(name="cookies", description="Set cookies for Genshin Impact API requests")
+    @starrail.command(name="cookies", description="Set cookies for Star Rail API requests")
     @option("language",
             description="Enter the redemption code or choose from the list.",
             choices=["English", "日本語", "한국어", "简体中文", "繁體中文", "Indonesia", "Deutsch", "Español", "Français", "Français", "Português", "Pусский", "ภาษาไทย", "Tiếng Việt"],
@@ -255,7 +276,7 @@ class GenshinImpact(commands.Cog):
             Hoyolab_Cookies[str(ctx.author.id)]["language"]  = lang
         else:
             # Create a new entry
-            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False}
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False, "starrail_auto": False, }
         with open('Hoyolab_Cookies.json', 'w') as f:
             json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(
@@ -283,7 +304,7 @@ class GenshinImpact(commands.Cog):
     else:
         print("Failed to retrieve data from server.")
 
-    @genshin.command(name="codes", description="Redeem Genshin Codes")
+    @starrail.command(name="codes", description="Redeem Star Rail Codes")
     @option("code",
             description="Enter the redemption code or choose from the list.",
             choices=codes,
@@ -293,7 +314,7 @@ class GenshinImpact(commands.Cog):
             Hoyolab_Cookies = json.load(f)
             cookies = Hoyolab_Cookies.get(str(ctx.author.id))
         if cookies == None:
-            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/genshin cookies'", ephemeral=False)
+            await ctx.respond(f"Cookies are not set for {ctx.author}. Please set cookies with '/starrail cookies'", ephemeral=False)
             return
         hashed_ltuid = cookies.get('ltuid')
         hashed_ltoken = cookies.get('ltoken')
@@ -302,9 +323,8 @@ class GenshinImpact(commands.Cog):
         ltoken = decrypt(hashed_ltoken, ctx.author.id)
         cookie_token = decrypt(hashed_cookie_token, ctx.author.id)
         client = genshin.Client(cookies={"ltuid": ltuid, "ltoken": ltoken,"account_id": ltuid,"cookie_token": cookie_token})
-        print(f"ltuid: {ltuid}, ltoken{ltoken}, accountid:{ltuid}, cookie_token:{cookie_token}")
         try:
-            await client.redeem_code(code,uid=await client._get_uid(game=genshin.Game.GENSHIN))
+            await client.redeem_code(code,uid=await client._get_uid(game=genshin.Game.STARRAIL))
             embed = discord.Embed(
                 title="Genshin Redeemption Code",
                 color=0xFFB6C1,
@@ -403,4 +423,4 @@ class GenshinImpact(commands.Cog):
     #     await ctx.send(embed=embed)
 
 def setup(bot):
-    bot.add_cog(GenshinImpact(bot))
+    bot.add_cog(HonkaiStarRail(bot))

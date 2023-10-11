@@ -202,7 +202,7 @@ class HonkaiImpact(commands.Cog):
             Hoyolab_Cookies[str(ctx.author.id)]["language"]  = lang
         else:
             # Create a new entry
-            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False}
+            Hoyolab_Cookies[str(ctx.author.id)] = {"ltuid": hashed_ltuid, "ltoken": hashed_ltoken, "cookie_token": hashed_cookie_token, "language": lang, "genshin_auto": False, "honkai_auto": False, "starrail_auto": False}
         with open('Hoyolab_Cookies.json', 'w') as f:
             json.dump(Hoyolab_Cookies, f)
         embed = discord.Embed(
