@@ -14,9 +14,9 @@
     <a href="https://github.com/k3rokami/Gura-Bot/issues">Feature Request</a>
     ·
     <a href="https://www.youtube.com/@GawrGura">Gura's Channel</a> <br> <br>
-    <a href="https://discord.com/api/oauth2/authorize?client_id=1092730179232735243&permissions=8&scope=bot%20applications.commands">
+<!--     <a href="https://discord.com/api/oauth2/authorize?client_id=1092730179232735243&permissions=8&scope=bot%20applications.commands">
       <img src="https://github.com/k3rokami/Gura-Bot/raw/main/Assets/Invite-Button.svg" alt="Invite Bot" width="104" height="28">
-    </a>
+    </a> -->
   </p>
 </div>
 
