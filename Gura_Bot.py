@@ -16,6 +16,9 @@ import platform
 import io
 import shlex
 import json
+import re
+import requests
+
 
 from cogs.utility import UtilityMenu
 from cogs.genshin import decrypt
@@ -27,10 +30,12 @@ from dotenv import load_dotenv
 from pysaucenao import SauceNao
 from pysaucenao.errors import SauceNaoException
 from utils import embeds
+from discord import option
 
-VERSION = "v1.4"
+VERSION = "v1.4.1"
 
 load_dotenv()
+global authorized_users
 
 bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 singapore_tz = pytz.timezone("Asia/Singapore")
@@ -38,6 +43,8 @@ start_time = datetime.datetime.now(singapore_tz)
 Morning_Messages = []
 genshin_clients = {}
 gura_images=[]
+users = os.getenv('Authorized_Users').split(',')
+authorized_users = [int(value) for value in users]
 
 for command in bot.commands:
     bot.remove_command(command.name)
@@ -190,6 +197,40 @@ async def on_message(message):
     else:
         ctx = await bot.get_context(message)
         await bot.invoke(ctx)
+
+@bot.event
+async def on_message(message):
+    users = os.getenv('twitter_authorized_channels').split(',')
+    twitter_authorized_channels = [int(value) for value in users]
+    if message.channel.id in twitter_authorized_channels:
+        if 'x.com' in message.content or 'twitter.com' in message.content and not 'vxtwitter.com' in message.content:
+            pattern = r'/status/(\d+)\??'
+            match1 = re.search(pattern, message.content)
+            match2 = re.search(pattern, message.content)
+            if match1:
+                status_number = match1.group(1)
+            elif match2:
+                status_number = match2.group(1)
+            response = requests.get(f"https://api.vxtwitter.com/Twitter/status/{status_number}")
+            tweet = json.loads(response.text)
+            media_url = tweet.get("mediaURLs", [])[0]
+            tweet_url = tweet.get("tweetURL", "")
+            url_pattern = r'https:\/\/t\.co\/\w+'
+            text_original = tweet.get("text", "")
+            text = re.sub(url_pattern, '', text_original)
+            likes = tweet.get("likes", "")
+            user_name = tweet.get("user_name", "")
+            user_screen_name = tweet.get("user_screen_name", "")
+            # embed = discord.Embed(
+            # title=f"{text} \n💖 {likes}",
+            # description=f"[**{user_name}** @**{user_screen_name}**]({tweet_url})",
+            # color=0xF8C8DC,
+            # url=media_url)
+            # embed.set_footer(text=f"Requested by {message.author.name}", icon_url=message.author.avatar.url)
+            # embed.set_image(url=media_url)
+            new_message = re.sub(r'(https?://)(x\.com|twitter\.com)', r'\1vxtwitter.com', message.content)
+            await message.channel.send(new_message)
+            # await message.delete()
 
 ## Morning Messages
 # @tasks.loop(seconds=1)
@@ -669,7 +710,40 @@ async def hello(interaction: discord.Interaction):
         f"Hey{interaction.user.mention}! This is a bot built by **Kurokami**",
         ephemeral=True,
     )
+    
+@bot.slash_command(name="status", description="Change the status of the bot")
+@option("status_type",
+    description="Choose a command to get information.",
+    choices=["listening", "watching", "playing", "streaming", "competing", "custom"],
+)
+async def set_status(interaction: discord.Interaction, status_type: str, status_message: str):
+    # Check if the user has permission to change the bot's status
+    if interaction.user.id in authorized_users:
+        activity_type = discord.ActivityType.playing
 
+        if status_type.lower() == "listening":
+            activity_type = discord.ActivityType.listening
+        elif status_type.lower() == "watching":
+            activity_type = discord.ActivityType.watching
+        elif status_type.lower() == "streaming":
+            activity_type = discord.ActivityType.streaming
+        elif status_type.lower() == "competing":
+            activity_type = discord.ActivityType.competing
+        elif status_type.lower() == "custom":
+            activity_type = discord.ActivityType.custom
+
+        activity = discord.Activity(name=status_message, type=activity_type)
+        await bot.change_presence(activity=activity)
+
+        embed = discord.Embed(
+            title="__**Status updated successfully**__",
+            description=f"Successfully changed status to: {status_type.capitalize()} {status_message}",
+            color=discord.Color.blurple(),
+        )
+        await interaction.response.send_message(embed=embed, ephemeral=False)
+    else:
+        embed = discord.Embed(title="🚫 Unauthorized access", description="You are not authorized to run this command.", color=discord.Color.red())
+        await interaction.response.send_message(embed=embed, ephemeral=False)
 # Main Function
 
 # @bot.slash_command(
