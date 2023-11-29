@@ -32,7 +32,7 @@ from pysaucenao.errors import SauceNaoException
 from utils import embeds
 from discord import option
 
-VERSION = "v1.4.1"
+VERSION = "v1.4.2"
 
 load_dotenv()
 global authorized_users
